@@ -140,7 +140,9 @@ bool CDeleteDay::SaveDateOfPerformance(SYSTEMTIME SysTime)
 // записываем какую папку будем удалять
 bool CDeleteDay::SavePathOfFolderToDelete(CString csFolderPath)
 {
-	//CString csFolderPath(m_csPath.GetString());
+	//////////////////////////////////////////
+	//не правильно записывается путь в реестр
+	//////////////////////////////////////////
 
 	if (SHSetValue(HKEY_CLASSES_ROOT
 		, RegDataKeyName
