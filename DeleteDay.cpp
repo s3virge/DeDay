@@ -63,7 +63,7 @@ bool CDeleteDay::AddToAutoRun()
 }
 
 // записываем в реестр когда выполнится задача
-bool CDeleteDay::SaveDeleteDay(SYSTEMTIME SysTime)
+bool CDeleteDay::SaveDateOfPerformance(SYSTEMTIME SysTime)
 {
 	/*SYSTEMTIME SysTime;
 	ZeroMemory(&SysTime, 0);
@@ -104,7 +104,7 @@ bool CDeleteDay::SaveDeleteDay(SYSTEMTIME SysTime)
 		, DelDayKeyName			//имя значения
 		, REG_SZ
 		, DeleteDay.GetString()
-		, DeleteDay.GetLength()) != ERROR_SUCCESS)
+		, sizeof(DeleteDay)) != ERROR_SUCCESS)
 	{
 		TRACE("Облом с SHSetValue() в SaveDeleteDay()", "Облом", MB_ICONERROR);
 		return false;
@@ -116,7 +116,7 @@ bool CDeleteDay::SaveDeleteDay(SYSTEMTIME SysTime)
 		, DelDayOfWeekKeyName			//имя значения
 		, REG_SZ
 		, DeleteWeek.GetString()
-		, DeleteWeek.GetLength()) != ERROR_SUCCESS)
+		, sizeof(DeleteWeek)) != ERROR_SUCCESS)
 	{
 		TRACE("Облом с SHSetValue() в SaveDeleteDay()", "Облом", MB_ICONERROR);
 		return false;
@@ -128,7 +128,7 @@ bool CDeleteDay::SaveDeleteDay(SYSTEMTIME SysTime)
 		, DelMonthKeyName			//имя значения
 		, REG_SZ
 		, DeleteMonth.GetString()
-		, DeleteMonth.GetLength()) != ERROR_SUCCESS)
+		, sizeof(DeleteMonth)) != ERROR_SUCCESS)
 	{
 		TRACE("Облом с SHSetValue() в SaveDeleteDay()");
 		return false;
@@ -138,7 +138,7 @@ bool CDeleteDay::SaveDeleteDay(SYSTEMTIME SysTime)
 }
 
 // записываем какую папку будем удалять
-bool CDeleteDay::SaveFolderPathToDelete(CString csFolderPath)
+bool CDeleteDay::SavePathOfFolderToDelete(CString csFolderPath)
 {
 	//CString csFolderPath(m_csPath.GetString());
 
@@ -147,7 +147,7 @@ bool CDeleteDay::SaveFolderPathToDelete(CString csFolderPath)
 		, DelFolderKeyName
 		, REG_SZ
 		, csFolderPath.GetString()
-		, csFolderPath.GetLength()) != ERROR_SUCCESS)
+		, sizeof(csFolderPath)) != ERROR_SUCCESS)
 	{
 		TRACE(L"Облом с SHSetValue() в SaveFolderPathToDelete()");
 		return false;
