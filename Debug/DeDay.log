@@ -1,22 +1,36 @@
 ﻿  DeleteDay.cpp
-d:\vsprojects\deday\deleteday.cpp(156): warning C4996: 'wcsncpy': This function or variable may be unsafe. Consider using wcsncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+d:\vsprojects\deday\deleteday.cpp(157): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(121): note: see declaration of 'wcscpy'
+d:\vsprojects\deday\deleteday.cpp(245): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(121): note: see declaration of 'wcscpy'
+d:\vsprojects\deday\deleteday.cpp(259): warning C4996: 'wcsncpy': This function or variable may be unsafe. Consider using wcsncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(204): note: see declaration of 'wcsncpy'
-d:\vsprojects\deday\deleteday.cpp(170): warning C4996: 'wcsncpy': This function or variable may be unsafe. Consider using wcsncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(204): note: see declaration of 'wcsncpy'
-d:\vsprojects\deday\deleteday.cpp(171): warning C4996: 'wcscat': This function or variable may be unsafe. Consider using wcscat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+d:\vsprojects\deday\deleteday.cpp(260): warning C4996: 'wcscat': This function or variable may be unsafe. Consider using wcscat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(101): note: see declaration of 'wcscat'
-d:\vsprojects\deday\deleteday.cpp(339): warning C4996: 'swprintf': function has been changed to conform with the ISO C standard, adding an extra character count parameter. To use the traditional Microsoft version, set _CRT_NON_CONFORMING_SWPRINTFS.
+d:\vsprojects\deday\deleteday.cpp(286): warning C4996: 'swprintf': function has been changed to conform with the ISO C standard, adding an extra character count parameter. To use the traditional Microsoft version, set _CRT_NON_CONFORMING_SWPRINTFS.
   c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstdio.h(1820): note: see declaration of 'swprintf'
-d:\vsprojects\deday\deleteday.cpp(346): warning C4996: 'swprintf': function has been changed to conform with the ISO C standard, adding an extra character count parameter. To use the traditional Microsoft version, set _CRT_NON_CONFORMING_SWPRINTFS.
-  c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstdio.h(1820): note: see declaration of 'swprintf'
-d:\vsprojects\deday\deleteday.cpp(391): warning C4996: 'wcsncpy': This function or variable may be unsafe. Consider using wcsncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+d:\vsprojects\deday\deleteday.cpp(399): warning C4996: 'wcsncpy': This function or variable may be unsafe. Consider using wcsncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(204): note: see declaration of 'wcsncpy'
-d:\vsprojects\deday\deleteday.cpp(403): warning C4996: 'swprintf': function has been changed to conform with the ISO C standard, adding an extra character count parameter. To use the traditional Microsoft version, set _CRT_NON_CONFORMING_SWPRINTFS.
+d:\vsprojects\deday\deleteday.cpp(413): warning C4996: 'wcsncpy': This function or variable may be unsafe. Consider using wcsncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(204): note: see declaration of 'wcsncpy'
+d:\vsprojects\deday\deleteday.cpp(414): warning C4996: 'wcscat': This function or variable may be unsafe. Consider using wcscat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(101): note: see declaration of 'wcscat'
+d:\vsprojects\deday\deleteday.cpp(582): warning C4996: 'swprintf': function has been changed to conform with the ISO C standard, adding an extra character count parameter. To use the traditional Microsoft version, set _CRT_NON_CONFORMING_SWPRINTFS.
   c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstdio.h(1820): note: see declaration of 'swprintf'
-d:\vsprojects\deday\deleteday.cpp(424): warning C4996: 'swprintf': function has been changed to conform with the ISO C standard, adding an extra character count parameter. To use the traditional Microsoft version, set _CRT_NON_CONFORMING_SWPRINTFS.
+d:\vsprojects\deday\deleteday.cpp(589): warning C4996: 'swprintf': function has been changed to conform with the ISO C standard, adding an extra character count parameter. To use the traditional Microsoft version, set _CRT_NON_CONFORMING_SWPRINTFS.
   c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstdio.h(1820): note: see declaration of 'swprintf'
-d:\vsprojects\deday\deleteday.cpp(428): warning C4996: 'swprintf': function has been changed to conform with the ISO C standard, adding an extra character count parameter. To use the traditional Microsoft version, set _CRT_NON_CONFORMING_SWPRINTFS.
+d:\vsprojects\deday\deleteday.cpp(634): warning C4996: 'wcsncpy': This function or variable may be unsafe. Consider using wcsncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(204): note: see declaration of 'wcsncpy'
+d:\vsprojects\deday\deleteday.cpp(646): warning C4996: 'swprintf': function has been changed to conform with the ISO C standard, adding an extra character count parameter. To use the traditional Microsoft version, set _CRT_NON_CONFORMING_SWPRINTFS.
   c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstdio.h(1820): note: see declaration of 'swprintf'
+d:\vsprojects\deday\deleteday.cpp(667): warning C4996: 'swprintf': function has been changed to conform with the ISO C standard, adding an extra character count parameter. To use the traditional Microsoft version, set _CRT_NON_CONFORMING_SWPRINTFS.
+  c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstdio.h(1820): note: see declaration of 'swprintf'
+d:\vsprojects\deday\deleteday.cpp(671): warning C4996: 'swprintf': function has been changed to conform with the ISO C standard, adding an extra character count parameter. To use the traditional Microsoft version, set _CRT_NON_CONFORMING_SWPRINTFS.
+  c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstdio.h(1820): note: see declaration of 'swprintf'
+  DeDayDlg.cpp
+  Generating Code...
+  Skipping... (no relevant changes detected)
+  DeDay.cpp
 DeDay.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/SAFESEH' specification
   DeDay.vcxproj -> D:\VSProjects\DeDay\Debug\DeDay.exe
   DeDay.vcxproj -> D:\VSProjects\DeDay\Debug\DeDay.pdb (Full PDB)

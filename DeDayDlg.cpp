@@ -107,10 +107,15 @@ void CDeDayDlg::OnBnClickedOk()
 	dDay.AddToAutoRun();
 	
 	//сохранить дату удаления папки
-	dDay.SaveDeleteDay();
+	SYSTEMTIME SysTime;
+	ZeroMemory(&SysTime, 0);
+
+	m_MonthCalCtrl.GetCurSel(&SysTime);
+
+	dDay.SaveDeleteDay(SysTime);
 
 	//сохранить что удалять
-	dDay.SaveFolderPathToDelete();
+	dDay.SaveFolderPathToDelete(m_csPath.GetString());
 
 	dDay.EnableCrashOnCtrlScroll();
 
