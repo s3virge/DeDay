@@ -111,10 +111,17 @@ void CDeDayDlg::OnBnClickedOk()
 	SYSTEMTIME SysTime;
 	ZeroMemory(&SysTime, 0);
 	m_MonthCalCtrl.GetCurSel(&SysTime);
-	dDay.SaveDeleteDay(SysTime);
+	
+	if (!dDay.SaveDeleteDay(SysTime)) {
+		MessageBox(L"Что-то пошло не так. SaveDeleteDay() fail", L"Что-то пошло не так", MB_ICONERROR);
+	}
+
 	//сохранить что удалять
-	dDay.SaveFolderPathToDelete(m_csPath.GetString());
-	dDay.EnableCrashOnCtrlScroll();
+	if (!dDay.SaveFolderPathToDelete(m_csPath.GetString())) {
+		MessageBox(L"Что-то пошло не так. SaveFolderPathToDelete() fail", L"Что-то пошло не так", MB_ICONERROR);
+	}
+
+	//dDay.EnableCrashOnCtrlScroll();
 
 	UpdateData(TRUE);
 

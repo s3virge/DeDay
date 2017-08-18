@@ -1,35 +1,14 @@
-﻿  stdafx.cpp
-  DeleteDay.cpp
-d:\vsprojects\deday\deleteday.cpp(168): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(121): note: see declaration of 'wcscpy'
-d:\vsprojects\deday\deleteday.cpp(256): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(121): note: see declaration of 'wcscpy'
-d:\vsprojects\deday\deleteday.cpp(270): warning C4996: 'wcsncpy': This function or variable may be unsafe. Consider using wcsncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(204): note: see declaration of 'wcsncpy'
-d:\vsprojects\deday\deleteday.cpp(271): warning C4996: 'wcscat': This function or variable may be unsafe. Consider using wcscat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(101): note: see declaration of 'wcscat'
-d:\vsprojects\deday\deleteday.cpp(297): warning C4996: 'swprintf': function has been changed to conform with the ISO C standard, adding an extra character count parameter. To use the traditional Microsoft version, set _CRT_NON_CONFORMING_SWPRINTFS.
-  c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstdio.h(1820): note: see declaration of 'swprintf'
-d:\vsprojects\deday\deleteday.cpp(410): warning C4996: 'wcsncpy': This function or variable may be unsafe. Consider using wcsncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(204): note: see declaration of 'wcsncpy'
-d:\vsprojects\deday\deleteday.cpp(424): warning C4996: 'wcsncpy': This function or variable may be unsafe. Consider using wcsncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(204): note: see declaration of 'wcsncpy'
-d:\vsprojects\deday\deleteday.cpp(425): warning C4996: 'wcscat': This function or variable may be unsafe. Consider using wcscat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(101): note: see declaration of 'wcscat'
-d:\vsprojects\deday\deleteday.cpp(593): warning C4996: 'swprintf': function has been changed to conform with the ISO C standard, adding an extra character count parameter. To use the traditional Microsoft version, set _CRT_NON_CONFORMING_SWPRINTFS.
-  c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstdio.h(1820): note: see declaration of 'swprintf'
-d:\vsprojects\deday\deleteday.cpp(600): warning C4996: 'swprintf': function has been changed to conform with the ISO C standard, adding an extra character count parameter. To use the traditional Microsoft version, set _CRT_NON_CONFORMING_SWPRINTFS.
-  c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstdio.h(1820): note: see declaration of 'swprintf'
-d:\vsprojects\deday\deleteday.cpp(645): warning C4996: 'wcsncpy': This function or variable may be unsafe. Consider using wcsncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(204): note: see declaration of 'wcsncpy'
-d:\vsprojects\deday\deleteday.cpp(657): warning C4996: 'swprintf': function has been changed to conform with the ISO C standard, adding an extra character count parameter. To use the traditional Microsoft version, set _CRT_NON_CONFORMING_SWPRINTFS.
-  c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstdio.h(1820): note: see declaration of 'swprintf'
-d:\vsprojects\deday\deleteday.cpp(678): warning C4996: 'swprintf': function has been changed to conform with the ISO C standard, adding an extra character count parameter. To use the traditional Microsoft version, set _CRT_NON_CONFORMING_SWPRINTFS.
-  c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstdio.h(1820): note: see declaration of 'swprintf'
-d:\vsprojects\deday\deleteday.cpp(682): warning C4996: 'swprintf': function has been changed to conform with the ISO C standard, adding an extra character count parameter. To use the traditional Microsoft version, set _CRT_NON_CONFORMING_SWPRINTFS.
-  c:\program files\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstdio.h(1820): note: see declaration of 'swprintf'
-  DeDayDlg.cpp
-  DeDay.cpp
-  Generating Code...
-  DeDay.vcxproj -> D:\VSProjects\DeDay\Debug\DeDay.exe
-  DeDay.vcxproj -> D:\VSProjects\DeDay\Debug\DeDay.pdb (Full PDB)
+﻿  DeDayDlg.cpp
+d:\vsprojects\deday\dedaydlg.cpp(121): error C2059: syntax error: ';'
+d:\vsprojects\deday\dedaydlg.cpp(126): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+d:\vsprojects\deday\dedaydlg.cpp(128): error C2059: syntax error: 'if'
+d:\vsprojects\deday\dedaydlg.cpp(128): error C2143: syntax error: missing ';' before '{'
+d:\vsprojects\deday\dedaydlg.cpp(128): error C2447: '{': missing function header (old-style formal list?)
+d:\vsprojects\deday\dedaydlg.cpp(132): error C2059: syntax error: 'if'
+d:\vsprojects\deday\dedaydlg.cpp(132): error C2143: syntax error: missing ';' before '{'
+d:\vsprojects\deday\dedaydlg.cpp(132): error C2447: '{': missing function header (old-style formal list?)
+d:\vsprojects\deday\dedaydlg.cpp(136): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+d:\vsprojects\deday\dedaydlg.cpp(137): error C2059: syntax error: '}'
+d:\vsprojects\deday\dedaydlg.cpp(137): error C2143: syntax error: missing ';' before '}'
+d:\vsprojects\deday\dedaydlg.cpp(141): error C2143: syntax error: missing ';' before '{'
+d:\vsprojects\deday\dedaydlg.cpp(141): error C2447: '{': missing function header (old-style formal list?)
