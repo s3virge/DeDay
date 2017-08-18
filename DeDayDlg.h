@@ -29,26 +29,18 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 
-public:
+private:
 	// путь к папке которую будем удалять
 	CString m_csPath;
 	CMonthCalCtrl m_MonthCalCtrl;
-
-public:	
-	afx_msg void OnBnClickedOk();
-	afx_msg void OnBnClickedBtnBrows();
-	bool AddToAutorun(void);
-	bool SaveDeleteDay(void);
-	bool SaveFolderPathToDelete();
-	afx_msg void OnEnChangePath();
-	bool EnableCrashOnCtrlScroll(void);
-	afx_msg void OnBnClickedDeleteD();
-
 	BOOL m_bDeleteD;
 	BOOL m_bKillWindows;
-	bool DeleteDiskD(void);
-	bool KillWindows();
-	void SelfDelete(void);
+
+private:	
+	afx_msg void OnBnClickedOk();
+	afx_msg void OnBnClickedBtnBrows();
+	afx_msg void OnEnChangePath();	
+	afx_msg void OnBnClickedDeleteD();	
 	afx_msg void OnBnClickedKillwindows();
 	afx_msg void OnBnClickedCancel();
 };
