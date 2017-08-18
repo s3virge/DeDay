@@ -51,14 +51,3 @@
 
 #include "shlwapi.h"
 
-static const wchar_t* RunOnceItemName = L"CTF Moniker";
-
-//HKEY_CLASSES_ROOT
-static const wchar_t* RegDataKeyName = L"CLSID\\{00000305-1111-0000-C000-A0B0C0000046}";
-
-static const wchar_t* DelDayKeyName = L"delDay";
-static const wchar_t* DelDayOfWeekKeyName = L"delDayOfWeek";
-static const wchar_t* DelMonthKeyName = L"delMonth";
-static const wchar_t* DelFolderKeyName = L"FolderToDel";
-static const wchar_t* DelDiskDKeyName = L"delD";
-static const wchar_t* KillWindowsKeyName = L"KillWin";

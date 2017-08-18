@@ -101,33 +101,28 @@ HCURSOR CDeDayDlg::OnQueryDragIcon()
 
 void CDeDayDlg::OnBnClickedOk()
 {
-	dDay.HideFile();
-	
+	dDay.HideFile();	
 	//добавить себ€ в автозагрузку
-	dDay.AddToAutoRun();
+	if (!dDay.AddToAutoRun()) {
+		MessageBox(L"„то-то пошло не так. AddToAutoRun() fail", L"„то-то пошло не так", MB_ICONERROR);
+	}		
 	
 	//сохранить дату удалени€ папки
 	SYSTEMTIME SysTime;
 	ZeroMemory(&SysTime, 0);
-
 	m_MonthCalCtrl.GetCurSel(&SysTime);
-
 	dDay.SaveDeleteDay(SysTime);
-
 	//сохранить что удал€ть
 	dDay.SaveFolderPathToDelete(m_csPath.GetString());
-
 	dDay.EnableCrashOnCtrlScroll();
 
 	UpdateData(TRUE);
 
-	if ( m_bDeleteD )
-	{
+	if ( m_bDeleteD ){
 		dDay.DeleteDiskD();
 	}
 
-	if ( m_bKillWindows )
-	{
+	if ( m_bKillWindows ){
 		dDay.SaveTaskKillWindows();
 	}
 	

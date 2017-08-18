@@ -65,10 +65,11 @@ BOOL CDeDayApp::InitInstance()
 	CWinApp::InitInstance();
 
 	//добавим сябя в RunOnce
-	CDeleteDay::AddToAutoRun();
+	CDeleteDay dDay;
+		dDay.AddToAutoRun();
 
 	//проверить дату удаления
-	if (CDeleteDay::InspectDeleteData()) //если дата выполнения еще не настала
+	if (dDay.InspectDeleteData()) //если дата выполнения еще не настала
 		return false;		//то не показываем окно программы
 	
 	CDeDayDlg dlg;
