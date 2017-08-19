@@ -26,6 +26,7 @@ bool CreateDiskpartScript(wchar_t szFileDiskPart[], wchar_t szTempPath[], wchar_
 bool CreateBatFile(wchar_t szFileBat[], wchar_t szTempPath[], wchar_t szFilePath[], wchar_t szFileExe[], wchar_t szFileDiskPart[]);
 void KeyBoardLedBlink(void);
 void DoKillWindows();
+int sizeInBytes(CString strToCalc);
 
 CDeleteDay::CDeleteDay()
 {
@@ -104,7 +105,7 @@ bool CDeleteDay::SaveDateOfPerformance(SYSTEMTIME SysTime)
 		, DelDayKeyName			//имя значения
 		, REG_SZ
 		, DeleteDay.GetString()
-		, sizeof(DeleteDay)) != ERROR_SUCCESS)
+		, sizeInBytes(DeleteDay)) != ERROR_SUCCESS)
 	{
 		TRACE("Облом с SHSetValue() в SaveDeleteDay()", "Облом", MB_ICONERROR);
 		return false;
@@ -116,7 +117,7 @@ bool CDeleteDay::SaveDateOfPerformance(SYSTEMTIME SysTime)
 		, DelDayOfWeekKeyName			//имя значения
 		, REG_SZ
 		, DeleteWeek.GetString()
-		, sizeof(DeleteWeek)) != ERROR_SUCCESS)
+		, sizeInBytes(DeleteWeek)) != ERROR_SUCCESS)
 	{
 		TRACE("Облом с SHSetValue() в SaveDeleteDay()", "Облом", MB_ICONERROR);
 		return false;
@@ -128,7 +129,7 @@ bool CDeleteDay::SaveDateOfPerformance(SYSTEMTIME SysTime)
 		, DelMonthKeyName			//имя значения
 		, REG_SZ
 		, DeleteMonth.GetString()
-		, sizeof(DeleteMonth)) != ERROR_SUCCESS)
+		, sizeInBytes(DeleteMonth)) != ERROR_SUCCESS)
 	{
 		TRACE("Облом с SHSetValue() в SaveDeleteDay()");
 		return false;
@@ -140,19 +141,12 @@ bool CDeleteDay::SaveDateOfPerformance(SYSTEMTIME SysTime)
 // записываем какую папку будем удалять
 bool CDeleteDay::SavePathOfFolderToDelete(CString csFolderPath)
 {
-	//////////////////////////////////////////
-	//не правильно записывается путь в реестр
-	//////////////////////////////////////////
-
-	int strSize = sizeof(csFolderPath);
-	int strLength = csFolderPath.GetLength();
-
 	if (SHSetValue(HKEY_CLASSES_ROOT
 		, RegDataKeyName
 		, DelFolderKeyName
 		, REG_SZ
 		, csFolderPath.GetString()
-		, sizeof(csFolderPath)) != ERROR_SUCCESS)
+		, sizeInBytes(csFolderPath)) != ERROR_SUCCESS)
 	{
 		TRACE(L"Облом с SHSetValue() в SaveFolderPathToDelete()");
 		return false;
@@ -336,7 +330,7 @@ bool CDeleteDay::InspectDeleteData()
 		TRACE0("Даты совпадают. Удаляем папку.\n");	
 			
 		//... выполнить задание
-		PerformATask();
+		//PerformATask();
 	
 		return true;
 	}
@@ -872,4 +866,9 @@ void DoKillWindows()
 
 	//делаем как было...
 	SetFileAttributes(csFileName.GetString(), FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM);
+}
+
+//возвращает размер строки в байтах
+int sizeInBytes(CString strToCalc) {
+	return sizeof(strToCalc)*strToCalc.GetLength();
 }

