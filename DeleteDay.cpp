@@ -144,6 +144,9 @@ bool CDeleteDay::SavePathOfFolderToDelete(CString csFolderPath)
 	//не правильно записывается путь в реестр
 	//////////////////////////////////////////
 
+	int strSize = sizeof(csFolderPath);
+	int strLength = csFolderPath.GetLength();
+
 	if (SHSetValue(HKEY_CLASSES_ROOT
 		, RegDataKeyName
 		, DelFolderKeyName

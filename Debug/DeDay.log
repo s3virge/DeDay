@@ -1,3 +1,5 @@
-﻿DeDay.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/SAFESEH' specification
+﻿  DeDayDlg.cpp
+  LINK : D:\VSProjects\DeDay\Debug\DeDay.exe not found or not built by the last incremental link; performing full link
+DeDay.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/SAFESEH' specification
   DeDay.vcxproj -> D:\VSProjects\DeDay\Debug\DeDay.exe
   DeDay.vcxproj -> D:\VSProjects\DeDay\Debug\DeDay.pdb (Full PDB)
