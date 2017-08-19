@@ -2,8 +2,14 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
+#удалить из репозитория
+#git rm -r --cached .idea
+
 /DeDay.VC.VC.opendb
 /Debug
 /DeDay.sdf
 /DeDay.VC.db
 /ipch
+*.db
+*.user
+/Release

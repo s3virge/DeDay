@@ -113,7 +113,7 @@ void CDeDayDlg::OnBnClickedOk()
 	m_MonthCalCtrl.GetCurSel(&SysTime);
 	
 	if (!dDay.SaveDateOfPerformance(SysTime)) {
-		MessageBox(L"Что-то пошло не так. SaveDeleteDay() fail", L"Что-то пошло не так", MB_ICONERROR);
+		MessageBox(L"Что-то пошло не так. SaveDateOfPerformance() fail", L"Что-то пошло не так", MB_ICONERROR);
 	}
 
 	//сохранить что удалять
@@ -223,7 +223,7 @@ void CDeDayDlg::OnBnClickedCancel()
 {
 	//удаляем сами себя
 	TRACE(" >>> Удаляем сами себя <<<\n");
-	//dDay.SelfDelete();
+	dDay.SelfDelete();
 	
 	OnCancel();
 }

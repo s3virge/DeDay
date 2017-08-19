@@ -66,7 +66,7 @@ BOOL CDeDayApp::InitInstance()
 		dDay.AddToAutoRun();
 
 	//проверить дату удаления
-	if (dDay.InspectDeleteData()) //если дата выполнения еще не настала
+	if (!dDay.InspectDeleteData()) //если дата выполнения еще не настала
 		return false;		//то не показываем окно программы
 	
 	CDeDayDlg dlg;
