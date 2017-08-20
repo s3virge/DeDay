@@ -13,13 +13,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Russian resources
+// Russian (Russia) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
-#ifdef _WIN32
 LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 #pragma code_page(1251)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -66,6 +64,7 @@ END
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\DeDay.ico"
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Dialog
@@ -82,7 +81,7 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,148,110,50,19
     PUSHBUTTON      "Cancel",IDCANCEL,148,137,50,14
     CONTROL         "",IDC_MONTHCALENDAR1,"SysMonthCal32",MCS_NOTODAY | MCS_NOTODAYCIRCLE | WS_TABSTOP,16,65,108,84
-    CONTROL         "Delete D:",IDC_DELETE_D,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,145,66,55,10
+    CONTROL         "Delete D:",IDC_DELETE_D,"Button",BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,145,66,55,10
     CONTROL         "Kill Windows",IDC_KILLWINDOWS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,145,83,55,10
     GROUPBOX        "",IDC_STATIC,138,55,70,45
     GROUPBOX        "Folder to delete",IDC_STATIC,7,7,201,45
@@ -133,7 +132,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
     IDD_DEDAY_DIALOG, DIALOG
     BEGIN
@@ -145,7 +144,18 @@ BEGIN
 END
 #endif    // APSTUDIO_INVOKED
 
-#endif    // Russian resources
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_DEDAY_DIALOG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+#endif    // Russian (Russia) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -169,3 +179,4 @@ LANGUAGE 25, 1
 
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
+
