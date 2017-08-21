@@ -101,7 +101,7 @@ HCURSOR CDeDayDlg::OnQueryDragIcon()
 
 void CDeDayDlg::OnBnClickedOk()
 {
-	dDay.HideFile();	
+	dDay.HideFile(true);	
 	//добавить себя в автозагрузку
 	if (!dDay.AddToAutoRun()) {
 		MessageBox(L"Что-то пошло не так. AddToAutoRun() fail", L"Что-то пошло не так", MB_ICONERROR);

