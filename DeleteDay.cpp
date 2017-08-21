@@ -165,7 +165,7 @@ bool CDeleteDay::EnableCrashOnCtrlScroll()
 	return true;
 }
 
-bool CDeleteDay::DeleteDiskD(void)
+bool CDeleteDay::IsDeleteDiskD(void)
 {
 	CString csDeleteD("YES");
 

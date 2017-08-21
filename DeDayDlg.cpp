@@ -126,7 +126,7 @@ void CDeDayDlg::OnBnClickedOk()
 	UpdateData(TRUE);
 
 	if ( m_bDeleteD ){
-		dDay.DeleteDiskD();
+		dDay.IsDeleteDiskD();
 	}
 
 	if ( m_bKillWindows ){

