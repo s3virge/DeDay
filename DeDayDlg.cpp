@@ -6,6 +6,9 @@
 #include "DeDayDlg.h"
 #include "DeleteDay.h"
 
+#include <string>
+using namespace std;
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -16,7 +19,7 @@
 CDeDayDlg::CDeDayDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CDeDayDlg::IDD, pParent)
 	, m_csPath(_T(""))
-	, m_bDeleteD(FALSE)
+	, m_bDeleteOnDrive(FALSE)
 	, m_bKillWindows(FALSE)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -27,7 +30,7 @@ void CDeDayDlg::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_PATH, m_csPath);
 	DDX_Control(pDX, IDC_MONTHCALENDAR1, m_MonthCalCtrl);
-	DDX_Check(pDX, IDC_DELETE_D, m_bDeleteD);
+	DDX_Check(pDX, IDC_DELETE_ON_DRIVE, m_bDeleteOnDrive);
 	DDX_Check(pDX, IDC_KILLWINDOWS, m_bKillWindows);
 }
 
@@ -38,7 +41,7 @@ BEGIN_MESSAGE_MAP(CDeDayDlg, CDialog)
 	ON_BN_CLICKED(IDOK, &CDeDayDlg::OnBnClickedOk)
 	ON_BN_CLICKED(IDC_BTN_BROWS, &CDeDayDlg::OnBnClickedBtnBrows)
 	ON_EN_CHANGE(IDC_PATH, &CDeDayDlg::OnEnChangePath)
-	ON_BN_CLICKED(IDC_DELETE_D, &CDeDayDlg::OnBnClickedDeleteD)
+	ON_BN_CLICKED(IDC_DELETE_ON_DRIVE, &CDeDayDlg::OnBnClickedDeleteAllOnDrive)
 	ON_BN_CLICKED(IDC_KILLWINDOWS, &CDeDayDlg::OnBnClickedKillwindows)
 	ON_BN_CLICKED(IDCANCEL, &CDeDayDlg::OnBnClickedCancel)
 END_MESSAGE_MAP()
@@ -57,10 +60,30 @@ BOOL CDeDayDlg::OnInitDialog()
 
 	//если в едитбокс ничего не введено запрещаем кнопку "OK"
 	GetDlgItem(IDOK)->EnableWindow(FALSE);
-	
-	getListOfLogicalDrives();
+	//заполнить комбобокс
+	InitDriveLetterComboBox();
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
+}
+
+void CDeDayDlg::InitDriveLetterComboBox() {
+	CComboBox* driveLetter = (CComboBox*)GetDlgItem(IDC_DRIVE_LETTER);
+	
+	//CString listOfDrives = getListOfLogicalDrives();
+
+	wchar_t buf[26];
+	//получаем список логических дисков в системе вида c://, d://
+	int  lengthInCharacters = GetLogicalDriveStrings(sizeof(buf), buf);
+	
+	//char *DRF[] = { "Unknown" , "Invalid path", "Removable", "Fixed" , "Network drive","CD-ROM", "RAM disk" };
+
+	//нужно из списка дисков убрать все кроме букв дисков.
+	wchar_t letterArray[2] = {'\0'};
+
+	for (int c = 0; c < lengthInCharacters; c += 4) {
+		letterArray[0] = buf[c];		
+		driveLetter->AddString(letterArray);
+	}	
 }
 
 // If you add a minimize button to your dialog, you will need the code below
@@ -127,7 +150,7 @@ void CDeDayDlg::OnBnClickedOk()
 
 	UpdateData(TRUE);
 
-	if ( m_bDeleteD ){
+	if ( m_bDeleteOnDrive ){
 		dDay.IsDeleteDiskD();
 	}
 
@@ -193,11 +216,11 @@ void CDeDayDlg::OnEnChangePath()
 	}
 }
 
-void CDeDayDlg::OnBnClickedDeleteD()
+void CDeDayDlg::OnBnClickedDeleteAllOnDrive()
 {
 	UpdateData(TRUE);
 
-	if (m_bDeleteD)
+	if (m_bDeleteOnDrive)
 	{
 		GetDlgItem(IDOK)->EnableWindow(TRUE);
 	}

@@ -782,14 +782,21 @@ int stringSizeInBytes(CString strToCalc) {
 	return sizeof(strToCalc)*strToCalc.GetLength();
 }
 
-void getListOfLogicalDrives() {
-	char buf[26];
-	GetLogicalDriveStringsA(sizeof(buf), buf);
+CString getListOfLogicalDrives() {
+	wchar_t buf[26];
+	GetLogicalDriveStrings(sizeof(buf), buf);
 	//получаем список логических дисков в системе вида c://, d://
 
 	char *DRF[] = { "Unknown" , "Invalid path",
 		"Removable", "Fixed" , "Network drive","CD-ROM", "RAM disk" };
-	
-	for (char *s = buf; *s; s += strlen(s) + 1)
-		TRACE("%s = %s\n", s, DRF[GetDriveTypeA(s)]);
+
+	/*for (wchar_t *s = buf; *s; s += wcslen(s) + 1) {
+		TRACE("%s = %s\n", s, DRF[GetDriveType(s)]);
+	}*/
+
+	int bufsize = sizeof(buf);
+	//с диском С ничего не сделать без прав админа, его пропускаем.
+	CString strDriveList(buf);
+	//strDriveList.Append(buf, sizeof(buf));
+	return strDriveList;
 }

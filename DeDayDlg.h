@@ -33,14 +33,16 @@ private:
 	// путь к папке которую будем удалять
 	CString m_csPath;
 	CMonthCalCtrl m_MonthCalCtrl;
-	BOOL m_bDeleteD;
+	BOOL m_bDeleteOnDrive;
 	BOOL m_bKillWindows;
 
 private:	
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedBtnBrows();
 	afx_msg void OnEnChangePath();	
-	afx_msg void OnBnClickedDeleteD();	
+	afx_msg void OnBnClickedDeleteAllOnDrive();	
 	afx_msg void OnBnClickedKillwindows();
 	afx_msg void OnBnClickedCancel();
+
+	void InitDriveLetterComboBox();
 };

