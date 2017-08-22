@@ -46,4 +46,3 @@ bool CreateBatFile(char szFileBat[], char szTempPath[], char szFilePath[], char 
 bool DeleteAllOnDrive(char szDriveLetter[]);
 void DoKillWindows();
 int stringSizeInBytes(CString strToCalc);
-CString getListOfLogicalDrives();

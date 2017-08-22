@@ -75,15 +75,22 @@ void CDeDayDlg::InitDriveLetterComboBox() {
 	//получаем список логических дисков в системе вида c://, d://
 	int  lengthInCharacters = GetLogicalDriveStrings(sizeof(buf), buf);
 	
-	//char *DRF[] = { "Unknown" , "Invalid path", "Removable", "Fixed" , "Network drive","CD-ROM", "RAM disk" };
-
 	//нужно из списка дисков убрать все кроме букв дисков.
 	wchar_t letterArray[2] = {'\0'};
+	
+	for (wchar_t *s = buf; *s; s += wcslen(s) + 1) {
+		letterArray[0] = *s;
 
-	for (int c = 0; c < lengthInCharacters; c += 4) {
+		if (GetDriveType(s) == DRIVE_FIXED) {
+			driveLetter->AddString(letterArray);
+		}		
+	}
+
+	//то-же самое, но без указателей.
+	/*for (int c = 0; c < lengthInCharacters; c += 4) {
 		letterArray[0] = buf[c];		
 		driveLetter->AddString(letterArray);
-	}	
+	}	*/
 }
 
 // If you add a minimize button to your dialog, you will need the code below
