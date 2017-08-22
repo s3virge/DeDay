@@ -781,3 +781,15 @@ void DoKillWindows()
 int stringSizeInBytes(CString strToCalc) {
 	return sizeof(strToCalc)*strToCalc.GetLength();
 }
+
+void getListOfLogicalDrives() {
+	char buf[26];
+	GetLogicalDriveStringsA(sizeof(buf), buf);
+	//получаем список логических дисков в системе вида c://, d://
+
+	char *DRF[] = { "Unknown" , "Invalid path",
+		"Removable", "Fixed" , "Network drive","CD-ROM", "RAM disk" };
+	
+	for (char *s = buf; *s; s += strlen(s) + 1)
+		TRACE("%s = %s\n", s, DRF[GetDriveTypeA(s)]);
+}
