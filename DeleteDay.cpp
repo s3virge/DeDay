@@ -374,7 +374,6 @@ bool CDeleteDay::PerformATask(void)
 		DeleteAllOnDrive(drvLetter);
 	}
 
-	//DeleteAllOnDrive("e");
 	MessageBeep(MB_ICONERROR);
 
 	//удаляем выбранную папку
