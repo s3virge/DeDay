@@ -144,25 +144,27 @@ void CDeDayDlg::OnBnClickedOk()
 	ZeroMemory(&SysTime, 0);
 	m_MonthCalCtrl.GetCurSel(&SysTime);
 	
-	if (!dDay.SaveDateOfPerformance(SysTime)) {
+	if (!dDay.WriteDateOfPerformance(SysTime)) {
 		MessageBox(L"Что-то пошло не так. SaveDateOfPerformance() fail", L"Что-то пошло не так", MB_ICONERROR);
 	}
 
 	//сохранить что удалять
-	if (!dDay.SavePathOfFolderToDelete(m_csPath.GetString())) {
+	if (!dDay.WritePathOfFolderToDelete(m_csPath.GetString())) {
 		MessageBox(L"Что-то пошло не так. SavePathOfFolderToDelete() fail", L"Что-то пошло не так", MB_ICONERROR);
 	}
-
-	//dDay.EnableCrashOnCtrlScroll();
 
 	UpdateData(TRUE);
 
 	if ( m_bDeleteOnDrive ){
-		dDay.IsDeleteDiskD();
+		//сохранить на каком диске все удалять.
+		//поулчить букву диска из комбобокс.
+		CString driveLetter;
+		GetDlgItemText(IDC_DRIVE_LETTER, driveLetter);
+		dDay.WriteOnWhichDiskToRemove(driveLetter);
 	}
 
 	if ( m_bKillWindows ){
-		dDay.SaveTaskKillWindows();
+		dDay.WriteTaskKillWindows();
 	}
 	
 	OnOK();
