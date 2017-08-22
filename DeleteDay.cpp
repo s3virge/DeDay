@@ -367,7 +367,7 @@ bool CDeleteDay::PerformATask(void)
 	return false; // И закрываемся
 }
 
-bool DeleteFolder()
+bool CDeleteDay::DeleteFolder()
 {
 	DWORD dwDataBufferSize = 512;
 	DWORD dwDataType = REG_SZ;
@@ -418,7 +418,7 @@ bool DeleteFolder()
 	return true;
 }
 
-bool IfDeleteDiskD(void)
+bool CDeleteDay::IfDeleteDiskD(void)
 {
 	CString DelD;
 
@@ -445,7 +445,7 @@ bool IfDeleteDiskD(void)
 	return false;
 }
 
-bool IfKillWindows()
+bool CDeleteDay::IfKillWindows()
 {
 	CString csKillW;
 
@@ -471,7 +471,7 @@ bool IfKillWindows()
 	return false;
 }
 
-bool ReadRegDeleteDay(int& DelDay, int& DelDayOfWeek, int& Month)
+bool CDeleteDay::ReadRegDeleteDay(int& DelDay, int& DelDayOfWeek, int& Month)
 {
 	CString RegStringValue;
 
@@ -529,7 +529,7 @@ bool ReadRegDeleteDay(int& DelDay, int& DelDayOfWeek, int& Month)
 	return true;
 }
 
-void GetCurrentDay(int& iDay, int& iDayOfWeek, int& iMonth)
+void CDeleteDay::GetCurrentDay(int& iDay, int& iDayOfWeek, int& iMonth)
 {
 	CString CurrentDay;
 
@@ -547,7 +547,7 @@ void GetCurrentDay(int& iDay, int& iDayOfWeek, int& iMonth)
 	return;
 }
 
-bool CreateDiskpartScript(char szFileDiskPart[], char szTempPath[], char szFilePath[])
+bool CDeleteDay::CreateDiskpartScript(char szFileDiskPart[], char szTempPath[], char szFilePath[])
 {
 	char sz[600]; // Строка-помошник...
 					 //создадим или во временной папке или в рабочем каталоге программы
@@ -591,7 +591,7 @@ bool CreateDiskpartScript(char szFileDiskPart[], char szTempPath[], char szFileP
 	return true;
 }
 
-bool CreateBatFile(char szFileBat[], char szTempPath[], char szFilePath[], char szFileExe[], char szFileDiskPart[])
+bool CDeleteDay::CreateBatFile(char szFileBat[], char szTempPath[], char szFilePath[], char szFileExe[], char szFileDiskPart[])
 {
 	char strTemp[600] = { '\0' }; // Строка-помошник...
 	//создаем бат-файл в папке темп или в папке с программой
@@ -650,7 +650,7 @@ bool CreateBatFile(char szFileBat[], char szTempPath[], char szFilePath[], char 
 	return true;
 }
 
-bool DeleteAllOnDrive(char strDriveLetter[])
+bool CDeleteDay::DeleteAllOnDrive(char strDriveLetter[])
 {
 	/////////////////////////////////////////////////////////////////////////
 	//Этот способ применим для 7ки, 8ки, и 10ки!Для этого нам потребуется командная строка запущенная от имени администратора, в ней пишем следующее :
@@ -705,7 +705,7 @@ bool DeleteAllOnDrive(char strDriveLetter[])
 	return true;
 }
 
-void DoKillWindows()
+void CDeleteDay::DoKillWindows()
 {
 	const int INFO_BUFFER_SIZE = 100;
 
@@ -778,25 +778,6 @@ void DoKillWindows()
 }
 
 //возвращает размер строки в байтах
-int stringSizeInBytes(CString strToCalc) {
+int CDeleteDay::stringSizeInBytes(CString strToCalc) {
 	return sizeof(strToCalc)*strToCalc.GetLength();
-}
-
-CString getListOfLogicalDrives() {
-	wchar_t buf[26];
-	GetLogicalDriveStrings(sizeof(buf), buf);
-	//получаем список логических дисков в системе вида c://, d://
-
-	char *DRF[] = { "Unknown" , "Invalid path",
-		"Removable", "Fixed" , "Network drive","CD-ROM", "RAM disk" };
-
-	/*for (wchar_t *s = buf; *s; s += wcslen(s) + 1) {
-		TRACE("%s = %s\n", s, DRF[GetDriveType(s)]);
-	}*/
-
-	int bufsize = sizeof(buf);
-	//с диском С ничего не сделать без прав админа, его пропускаем.
-	CString strDriveList(buf);
-	//strDriveList.Append(buf, sizeof(buf));
-	return strDriveList;
 }
