@@ -46,7 +46,22 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\DeDay.ico">
+    <Image Include="res\icon1.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="C:\Users\S3ViRGE\Desktop\Folder\PNG\Folder.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\icon2.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\Folder.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="icon1.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\imageres_162.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
